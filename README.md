@@ -25,3 +25,4 @@ For dynamometer.ino:
 * This project was coded in Arduino IDE using the esp32 board library by Espressif (for a step-by-step setup process consult the [link](https://dronebotworkshop.com/esp32-intro/))
 For groundStation.py:
 * PySide6
+* pySerial
