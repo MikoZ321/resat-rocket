@@ -57,6 +57,9 @@ class Dashboard(QMainWindow):
 
         central_widget.setLayout(main_grid_layout)
 
+        # init status bar TODO: style status bar
+        self.status_bar = self.statusBar()
+
 
     def listPorts(self) -> None:
         '''Method used to list all of the available COM ports'''
@@ -77,10 +80,11 @@ class Dashboard(QMainWindow):
         '''Method used to close the window and kill the application'''
         self.app.quit()
 
-    # TODO: display port change in status bar
+
     def setCurrentPort(self, port_name: str) -> None:
         '''Method used to change the serial port from which data are read'''
         self.current_port = port_name
+        self.status_bar.showMessage(f"Port set to {port_name}")
 
 # not final design, this definition is used to showcase the grid layout
 class DashboardPanel(QPushButton):
