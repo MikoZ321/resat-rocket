@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu
+from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy
 from PySide6.QtGui import QAction
 import serial.tools.list_ports
 
@@ -31,6 +31,32 @@ class Dashboard(QMainWindow):
         # init serial port to None, TODO: save recent config
         self.current_port: str | None = None
 
+        # start central widget section
+        central_widget: QWidget = QWidget(self)
+        self.setCentralWidget(central_widget)
+
+        # init container widgets
+        thrust_plot_container = DashboardPanel("Thrust plot")
+        thrust_info_container = DashboardPanel("Thrust info")
+        engine_info_container = DashboardPanel("Engine")
+        connection_info_container = DashboardPanel("Comms")
+        hydraulics_info_container = DashboardPanel("Hydraulics")
+        tank_info_container = DashboardPanel("Tank")
+
+        # init grid to organize widgets
+        main_grid_layout: QGridLayout = QGridLayout()
+        main_grid_layout.addWidget(thrust_plot_container, 0,0,1,4)
+        main_grid_layout.addWidget(thrust_info_container, 0,4,1,2)
+        main_grid_layout.addWidget(engine_info_container, 0,6,2,3)
+        main_grid_layout.addWidget(connection_info_container, 1,0,1,2)
+        main_grid_layout.addWidget(hydraulics_info_container, 1,2,1,2)
+        main_grid_layout.addWidget(tank_info_container, 1,4,1,2)
+
+        main_grid_layout.setSpacing(8)
+        main_grid_layout.setContentsMargins(8, 8, 8, 8)
+
+        central_widget.setLayout(main_grid_layout)
+
 
     def listPorts(self) -> None:
         '''Method used to list all of the available COM ports'''
@@ -51,10 +77,17 @@ class Dashboard(QMainWindow):
         '''Method used to close the window and kill the application'''
         self.app.quit()
 
-    
+    # TODO: display port change in status bar
     def setCurrentPort(self, port_name: str) -> None:
         '''Method used to change the serial port from which data are read'''
         self.current_port = port_name
+
+# not final design, this definition is used to showcase the grid layout
+class DashboardPanel(QPushButton):
+    '''Containers used to house different dashboard sections'''
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
 
 if __name__ == '__main__':
