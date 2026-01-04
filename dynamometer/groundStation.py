@@ -1,6 +1,8 @@
-from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy, QVBoxLayout
 from PySide6.QtGui import QAction
 import serial.tools.list_ports
+import pyqtgraph as pg
+from collections import deque
 
 # TODO: read the incoming data from a serial connection
 # TODO: save the information in a .csv file
@@ -37,9 +39,10 @@ class Dashboard(QMainWindow):
 
         # init container widgets
         thrust_plot_container = DashboardPanel("Thrust plot")
+        thrust_plot_container = thrust_plot_container.createThrustPlot()
         thrust_info_container = DashboardPanel("Thrust info")
         engine_info_container = DashboardPanel("Engine")
-        connection_info_container = DashboardPanel("Comms")
+        communication_info_container = DashboardPanel("Comms")
         hydraulics_info_container = DashboardPanel("Hydraulics")
         tank_info_container = DashboardPanel("Tank")
 
@@ -48,7 +51,7 @@ class Dashboard(QMainWindow):
         main_grid_layout.addWidget(thrust_plot_container, 0,0,1,4)
         main_grid_layout.addWidget(thrust_info_container, 0,4,1,2)
         main_grid_layout.addWidget(engine_info_container, 0,6,2,3)
-        main_grid_layout.addWidget(connection_info_container, 1,0,1,2)
+        main_grid_layout.addWidget(communication_info_container, 1,0,1,2)
         main_grid_layout.addWidget(hydraulics_info_container, 1,2,1,2)
         main_grid_layout.addWidget(tank_info_container, 1,4,1,2)
 
@@ -86,12 +89,33 @@ class Dashboard(QMainWindow):
         self.current_port = port_name
         self.status_bar.showMessage(f"Port set to {port_name}")
 
-# not final design, this definition is used to showcase the grid layout
-class DashboardPanel(QPushButton):
+# TODO: remove the names
+class DashboardPanel(QWidget):
     '''Containers used to house different dashboard sections'''
     def __init__(self, name: str) -> None:
-        super().__init__(name)
+        super().__init__()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.setObjectName(name)
+
+    # TODO: style graph, connect serial worker
+    def createThrustPlot(self) -> DashboardPanel:
+        '''Creates the thrust plot panel and returns it'''
+        result = DashboardPanel("Thrust plot")
+
+        self.graphWidget = pg.PlotWidget()
+
+        # mock data used for testing 
+        times = deque([1, 2, 3, 4, 5])
+        thrusts = deque([4, 50, 2000, 32, 500])
+
+        self.graphWidget.plot(times, thrusts)
+        self.graphWidget.setLabel("left", "Thrust (N)")
+        self.graphWidget.setLabel("bottom", "Time (s)")
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.graphWidget)
+        result.setLayout(layout)
+        return result
 
 
 if __name__ == '__main__':
