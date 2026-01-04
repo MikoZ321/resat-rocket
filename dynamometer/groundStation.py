@@ -96,35 +96,17 @@ class DashboardPanel(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setObjectName(name)
 
-    # TODO: style graph, connect serial worker
-    def createThrustPlot(self) -> DashboardPanel:
-        '''Creates the thrust plot panel and returns it'''
-        result = DashboardPanel("Thrust plot")
-
-        self.graphWidget = pg.PlotWidget()
-
-        # mock data used for testing 
-        times = deque([1, 2, 3, 4, 5])
-        thrusts = deque([4, 50, 2000, 32, 500])
-
-        self.graphWidget.plot(times, thrusts)
-        self.graphWidget.setLabel("left", "Thrust (N)")
-        self.graphWidget.setLabel("bottom", "Time (s)")
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.graphWidget)
-        result.setLayout(layout)
-        return result
-    
 
     def createThrustInfo(self) -> DashboardPanel:
-        result = DashboardPanel("Thrust info")
+        '''Creates the thrust info panel and returns it'''
+        result: DashboardPanel = DashboardPanel("Thrust info")
 
-        current_thrust = LabelValuePair("Current thrust", "50", "N")
-        max_thrust = LabelValuePair("Maximum thrust", "2000", "N")
-        total_impulse = LabelValuePair("Total impulse", "3000", "Ns")
+        current_thrust: LabelValuePair = LabelValuePair("Current thrust", "50", "N")
+        max_thrust: LabelValuePair = LabelValuePair("Maximum thrust", "2000", "N")
+        total_impulse: LabelValuePair = LabelValuePair("Total impulse", "3000", "Ns")
 
-        main_layout = QVBoxLayout()
+        # layout all of the readings vertically
+        main_layout: QVBoxLayout = QVBoxLayout()
         main_layout.addWidget(current_thrust)
         main_layout.addWidget(max_thrust)
         main_layout.addWidget(total_impulse)
@@ -133,23 +115,49 @@ class DashboardPanel(QWidget):
         return result
     
 
+    # TODO: style graph, connect serial worker
+    def createThrustPlot(self) -> DashboardPanel:
+        '''Creates the thrust plot panel and returns it'''
+        result: DashboardPanel = DashboardPanel("Thrust plot")
+
+        self.graphWidget: pg.PlotWidget = pg.PlotWidget()
+
+        # mock data used for testing 
+        times: deque[float] = deque([1, 2, 3, 4, 5])
+        thrusts: deque[float] = deque([4, 50, 2000, 32, 500])
+
+        self.graphWidget.plot(times, thrusts)
+        self.graphWidget.setLabel("left", "Thrust (N)")
+        self.graphWidget.setLabel("bottom", "Time (s)")
+
+        layout: QVBoxLayout = QVBoxLayout()
+        layout.addWidget(self.graphWidget)
+        result.setLayout(layout)
+
+        return result
+    
+    
+
 class LabelValuePair(QWidget):
     '''Container for the commonly used label and value combination'''
     def __init__(self, label: str, value: str, unit: str):
         super().__init__()
 
-        self.label = QLabel(label)
-        value_unit_container = QWidget()
-        value_unit_layout = QHBoxLayout()
+        self.label: QLabel = QLabel(label)
+        # container to organise the value and unit
+        value_unit_container: QWidget = QWidget()
+        value_unit_layout: QHBoxLayout = QHBoxLayout()
 
-        self.value = QLabel(value)
-        self.unit = QLabel(unit)
+        self.value: QLabel = QLabel(value)
+        self.unit:QLabel = QLabel(unit)
 
+        # layout value and unit horizontally
         value_unit_layout.addWidget(self.value)
         value_unit_layout.addWidget(self.unit)
         value_unit_container.setLayout(value_unit_layout)
 
-        main_layout = QVBoxLayout()
+        # layout label and value-unit pair vertically
+        main_layout: QVBoxLayout = QVBoxLayout()
         main_layout.addWidget(self.label)
         main_layout.addWidget(value_unit_container)
         self.setLayout(main_layout)
