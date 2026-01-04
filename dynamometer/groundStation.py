@@ -41,7 +41,7 @@ class Dashboard(QMainWindow):
         thrust_plot_container = DashboardPanel("Thrust plot").createThrustPlot()
         thrust_info_container = DashboardPanel("Thrust info").createThrustInfo()
         engine_info_container = DashboardPanel("Engine")
-        communication_info_container = DashboardPanel("Comms")
+        communication_info_container = DashboardPanel("Communications info").createCommunicationsInfo()
         hydraulics_info_container = DashboardPanel("Hydraulics")
         tank_info_container = DashboardPanel("Tank")
 
@@ -95,6 +95,24 @@ class DashboardPanel(QWidget):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setObjectName(name)
+
+
+    def createCommunicationsInfo(self) -> DashboardPanel:
+        '''Creates the communications info panel and returns it'''
+        result: DashboardPanel = DashboardPanel("Communications info")
+
+        rssi: LabelValuePair = LabelValuePair("RSSI", "-100", "dBm")
+        data_frequency: LabelValuePair = LabelValuePair("Data frequency", "80", "Hz")
+        elapsed_time: LabelValuePair = LabelValuePair("Elapsed time", "1000", "s")
+
+        # layout all of the readings vertically
+        main_layout: QVBoxLayout = QVBoxLayout()
+        main_layout.addWidget(rssi)
+        main_layout.addWidget(data_frequency)
+        main_layout.addWidget(elapsed_time)
+        result.setLayout(main_layout)
+
+        return result
 
 
     def createThrustInfo(self) -> DashboardPanel:
