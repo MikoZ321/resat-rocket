@@ -42,7 +42,7 @@ class Dashboard(QMainWindow):
         thrust_info_container = DashboardPanel("Thrust info").createThrustInfo()
         engine_info_container = DashboardPanel("Engine info").createEngineInfo()
         communication_info_container = DashboardPanel("Communications info").createCommunicationsInfo()
-        hydraulics_info_container = DashboardPanel("Hydraulics")
+        hydraulics_info_container = DashboardPanel("Hydraulics info").createHydraulicsInfo()
         tank_info_container = DashboardPanel("Tank info").createTankInfo()
 
         # init grid to organize widgets
@@ -145,7 +145,25 @@ class DashboardPanel(QWidget):
         result.setLayout(main_layout)
 
         return result
-    
+
+
+    def createHydraulicsInfo(self) -> DashboardPanel:
+        result: DashboardPanel = DashboardPanel("Hydraulics info")
+
+        fuel_screw_plug: ValveControlWidget = ValveControlWidget("Fuel screw plug")
+        oxidizer_tanking_valve: ValveControlWidget = ValveControlWidget("Oxidizer tanking valve")
+        vessel_vent_valve: ValveControlWidget = ValveControlWidget("Vessel vent valve")
+        hose_vent_valve: ValveControlWidget = ValveControlWidget("Hose vent valve")
+
+        grid_layout: QGridLayout = QGridLayout()
+        grid_layout.addWidget(fuel_screw_plug, 0, 0)
+        grid_layout.addWidget(oxidizer_tanking_valve, 0, 1)
+        grid_layout.addWidget(vessel_vent_valve, 1, 0)
+        grid_layout.addWidget(hose_vent_valve, 1, 1)
+        result.setLayout(grid_layout)
+
+        return result
+
 
     def createTankInfo(self) -> DashboardPanel:
         result: DashboardPanel = DashboardPanel("Tank info")
@@ -204,7 +222,6 @@ class DashboardPanel(QWidget):
 
         return result
     
-    
 
 class LabelValuePair(QWidget):
     '''Container for the commonly used label and value combination'''
@@ -229,6 +246,50 @@ class LabelValuePair(QWidget):
         main_layout.addWidget(self.label)
         main_layout.addWidget(value_unit_container)
         self.setLayout(main_layout)
+
+
+# TODO: actually open and close when pressed, add cooldown
+class ValveControlWidget(QWidget):
+    '''Container for the valve controls used for the hydraulics'''
+    def __init__(self, name: str, isOpenInitial: bool = False):
+        super().__init__()
+
+        label: QLabel = QLabel(name)
+        self.status: QLabel = QLabel()
+        self.button: QPushButton = QPushButton()
+
+        self.isOpen: bool = isOpenInitial
+        self.updateWidgetVisuals()
+        self.button.clicked.connect(self.changeState)
+
+        main_layout: QVBoxLayout = QVBoxLayout()
+        main_layout.addWidget(label)
+        main_layout.addWidget(self.status)
+        main_layout.addWidget(self.button)
+        self.setLayout(main_layout)
+
+
+    def changeState(self) -> None:
+        '''Changes the state of the valve and widget'''
+        if self.isOpen: self.isOpen = False
+        else: self.isOpen = True
+
+        self.updateWidgetVisuals()
+        return None
+
+    
+    def updateWidgetVisuals(self) -> None:
+        '''Updates the visuals of the widget to reflect the state of the valve'''
+        if self.isOpen:
+            self.status.setText("Currently open")
+            self.button.setText("Click to close")
+            return None
+        
+        self.status.setText("Currently closed")
+        self.button.setText("Click to open")
+        return None
+
+
 
 
 if __name__ == '__main__':
