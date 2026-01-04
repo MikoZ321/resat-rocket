@@ -43,7 +43,7 @@ class Dashboard(QMainWindow):
         engine_info_container = DashboardPanel("Engine")
         communication_info_container = DashboardPanel("Communications info").createCommunicationsInfo()
         hydraulics_info_container = DashboardPanel("Hydraulics")
-        tank_info_container = DashboardPanel("Tank")
+        tank_info_container = DashboardPanel("Tank info").createTankInfo()
 
         # init grid to organize widgets
         main_grid_layout: QGridLayout = QGridLayout()
@@ -110,6 +110,24 @@ class DashboardPanel(QWidget):
         main_layout.addWidget(rssi)
         main_layout.addWidget(data_frequency)
         main_layout.addWidget(elapsed_time)
+        result.setLayout(main_layout)
+
+        return result
+    
+
+    def createTankInfo(self) -> DashboardPanel:
+        result: DashboardPanel = DashboardPanel("Tank info")
+
+        fuel_pressure: LabelValuePair = LabelValuePair("Fuel pressure", "20", "bar")
+        # TODO: add tank graphic to track piston position
+        tank_container: QWidget = QWidget()
+        oxidizer_pressure: LabelValuePair = LabelValuePair("Oxidizer pressure", "20", "bar")
+
+        # layout all components vertically
+        main_layout: QVBoxLayout = QVBoxLayout()
+        main_layout.addWidget(fuel_pressure)
+        main_layout.addWidget(tank_container)
+        main_layout.addWidget(oxidizer_pressure)
         result.setLayout(main_layout)
 
         return result
