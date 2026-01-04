@@ -40,7 +40,7 @@ class Dashboard(QMainWindow):
         # init container widgets
         thrust_plot_container = DashboardPanel("Thrust plot").createThrustPlot()
         thrust_info_container = DashboardPanel("Thrust info").createThrustInfo()
-        engine_info_container = DashboardPanel("Engine")
+        engine_info_container = DashboardPanel("Engine info").createEngineInfo()
         communication_info_container = DashboardPanel("Communications info").createCommunicationsInfo()
         hydraulics_info_container = DashboardPanel("Hydraulics")
         tank_info_container = DashboardPanel("Tank info").createTankInfo()
@@ -110,6 +110,38 @@ class DashboardPanel(QWidget):
         main_layout.addWidget(rssi)
         main_layout.addWidget(data_frequency)
         main_layout.addWidget(elapsed_time)
+        result.setLayout(main_layout)
+
+        return result
+    
+
+    def createEngineInfo(self) -> DashboardPanel:
+        result: DashboardPanel = DashboardPanel("Engine info")
+
+        # TODO: create graphic to display open/closed state of solenoid valves
+        solenoid_valve_container: QWidget = QWidget()
+        # TODO: create graphic to display engine temperature and flame being lit
+        engine_container: QWidget = QWidget()
+        burn_info_container: QWidget = QWidget()
+        ignite_button: QPushButton = QPushButton("Ignite")
+
+        # create burn_info_container subcomponents
+        burn_time: LabelValuePair = LabelValuePair("Burn time", "3", "s")
+        brightness: LabelValuePair = LabelValuePair("Brightness", "37", "%")
+
+        # layout burn_info_container
+        burn_info_layout: QHBoxLayout = QHBoxLayout()
+        burn_info_layout.addWidget(burn_time)
+        burn_info_layout.addWidget(brightness)
+        burn_info_container.setLayout(burn_info_layout)
+
+
+        # layout all components vertically
+        main_layout: QVBoxLayout = QVBoxLayout()
+        main_layout.addWidget(solenoid_valve_container)
+        main_layout.addWidget(engine_container)
+        main_layout.addWidget(burn_info_container)
+        main_layout.addWidget(ignite_button)
         result.setLayout(main_layout)
 
         return result
