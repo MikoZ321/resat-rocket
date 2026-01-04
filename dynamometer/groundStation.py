@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy, QVBoxLayout
+from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtGui import QAction
 import serial.tools.list_ports
 import pyqtgraph as pg
@@ -38,9 +38,8 @@ class Dashboard(QMainWindow):
         self.setCentralWidget(central_widget)
 
         # init container widgets
-        thrust_plot_container = DashboardPanel("Thrust plot")
-        thrust_plot_container = thrust_plot_container.createThrustPlot()
-        thrust_info_container = DashboardPanel("Thrust info")
+        thrust_plot_container = DashboardPanel("Thrust plot").createThrustPlot()
+        thrust_info_container = DashboardPanel("Thrust info").createThrustInfo()
         engine_info_container = DashboardPanel("Engine")
         communication_info_container = DashboardPanel("Comms")
         hydraulics_info_container = DashboardPanel("Hydraulics")
@@ -116,6 +115,44 @@ class DashboardPanel(QWidget):
         layout.addWidget(self.graphWidget)
         result.setLayout(layout)
         return result
+    
+
+    def createThrustInfo(self) -> DashboardPanel:
+        result = DashboardPanel("Thrust info")
+
+        current_thrust = LabelValuePair("Current thrust", "50", "N")
+        max_thrust = LabelValuePair("Maximum thrust", "2000", "N")
+        total_impulse = LabelValuePair("Total impulse", "3000", "Ns")
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(current_thrust)
+        main_layout.addWidget(max_thrust)
+        main_layout.addWidget(total_impulse)
+        result.setLayout(main_layout)
+
+        return result
+    
+
+class LabelValuePair(QWidget):
+    '''Container for the commonly used label and value combination'''
+    def __init__(self, label: str, value: str, unit: str):
+        super().__init__()
+
+        self.label = QLabel(label)
+        value_unit_container = QWidget()
+        value_unit_layout = QHBoxLayout()
+
+        self.value = QLabel(value)
+        self.unit = QLabel(unit)
+
+        value_unit_layout.addWidget(self.value)
+        value_unit_layout.addWidget(self.unit)
+        value_unit_container.setLayout(value_unit_layout)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.label)
+        main_layout.addWidget(value_unit_container)
+        self.setLayout(main_layout)
 
 
 if __name__ == '__main__':
