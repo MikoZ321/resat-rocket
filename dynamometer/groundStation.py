@@ -116,6 +116,7 @@ class DashboardPanel(QWidget):
     
 
     def createEngineInfo(self) -> DashboardPanel:
+        '''Creates the engine info panel and returns it'''
         result: DashboardPanel = DashboardPanel("Engine info")
 
         # TODO: create graphic to display open/closed state of solenoid valves
@@ -148,6 +149,7 @@ class DashboardPanel(QWidget):
 
 
     def createHydraulicsInfo(self) -> DashboardPanel:
+        '''Creates the hydraulics info panel and returns it'''
         result: DashboardPanel = DashboardPanel("Hydraulics info")
 
         fuel_screw_plug: ValveControlWidget = ValveControlWidget("Fuel screw plug")
@@ -166,6 +168,7 @@ class DashboardPanel(QWidget):
 
 
     def createTankInfo(self) -> DashboardPanel:
+        '''Creates the tank info panel and returns it'''
         result: DashboardPanel = DashboardPanel("Tank info")
 
         fuel_pressure: LabelValuePair = LabelValuePair("Fuel pressure", "20", "bar")
@@ -288,8 +291,6 @@ class ValveControlWidget(QWidget):
         self.status.setText("Currently closed")
         self.button.setText("Click to open")
         return None
-
-
 
 
 if __name__ == '__main__':
