@@ -38,22 +38,30 @@ class Dashboard(QMainWindow):
         central_widget: QWidget = QWidget(self)
         self.setCentralWidget(central_widget)
 
-        # init container widgets
+        # init thrust plot panel
         thrust_plot = DashboardPanel("Thrust plot")
         thrust_plot_container = thrust_plot.createThrustPlot()
 
         self.thrust_curve = thrust_plot.thrust_curve
 
         # init thrust info panel
-        thrust_panel = DashboardPanel("Thrust info")
-        thrust_info_container = thrust_panel.createThrustInfo()
+        thrust_info = DashboardPanel("Thrust info")
+        thrust_info_container = thrust_info.createThrustInfo()
 
-        self.current_thrust_widget = thrust_panel.current_thrust
-        self.max_thrust_widget = thrust_panel.max_thrust
-        self.total_impulse_widget = thrust_panel.total_impulse
+        self.current_thrust_widget = thrust_info.current_thrust
+        self.max_thrust_widget = thrust_info.max_thrust
+        self.total_impulse_widget = thrust_info.total_impulse
 
         engine_info_container = DashboardPanel("Engine info").createEngineInfo()
-        communication_info_container = DashboardPanel("Communications info").createCommunicationsInfo()
+
+        # init communications info panel
+        communications_info = DashboardPanel("Communications info")
+        communications_info_container = communications_info.createCommunicationsInfo()
+
+        self.rssi_widget = communications_info.rssi
+        self.data_frequency_widget = communications_info.data_frequency
+        self.elapsed_time_widget = communications_info.elapsed_time
+
         hydraulics_info_container = DashboardPanel("Hydraulics info").createHydraulicsInfo()
         tank_info_container = DashboardPanel("Tank info").createTankInfo()
 
@@ -62,7 +70,7 @@ class Dashboard(QMainWindow):
         main_grid_layout.addWidget(thrust_plot_container, 0,0,1,4)
         main_grid_layout.addWidget(thrust_info_container, 0,4,1,2)
         main_grid_layout.addWidget(engine_info_container, 0,6,2,3)
-        main_grid_layout.addWidget(communication_info_container, 1,0,1,2)
+        main_grid_layout.addWidget(communications_info_container, 1,0,1,2)
         main_grid_layout.addWidget(hydraulics_info_container, 1,2,1,2)
         main_grid_layout.addWidget(tank_info_container, 1,4,1,2)
 
@@ -113,7 +121,11 @@ class Dashboard(QMainWindow):
             self.thrust_buffer.append(self.parsed_data.current_thrust)
             self.time_buffer.append(self.parsed_data.elapsed_time)
 
+            # display thrust info values
             self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust}")
+
+            # display communications info values
+            self.elapsed_time_widget.setValue(f"{self.parsed_data.elapsed_time:.2f}")
 
 
     def listPorts(self) -> None:
@@ -201,15 +213,15 @@ class DashboardPanel(QWidget):
         '''Creates the communications info panel and returns it'''
         result: DashboardPanel = DashboardPanel("Communications info")
 
-        rssi: LabelValuePair = LabelValuePair("RSSI", "-100", "dBm")
-        data_frequency: LabelValuePair = LabelValuePair("Data frequency", "80", "Hz")
-        elapsed_time: LabelValuePair = LabelValuePair("Elapsed time", "1000", "s")
+        self.rssi: LabelValuePair = LabelValuePair("RSSI", "-100", "dBm")
+        self.data_frequency: LabelValuePair = LabelValuePair("Data frequency", "80", "Hz")
+        self.elapsed_time: LabelValuePair = LabelValuePair("Elapsed time", "1000", "s")
 
         # layout all of the readings vertically
         main_layout: QVBoxLayout = QVBoxLayout()
-        main_layout.addWidget(rssi)
-        main_layout.addWidget(data_frequency)
-        main_layout.addWidget(elapsed_time)
+        main_layout.addWidget(self.rssi)
+        main_layout.addWidget(self.data_frequency)
+        main_layout.addWidget(self.elapsed_time)
         result.setLayout(main_layout)
 
         return result
