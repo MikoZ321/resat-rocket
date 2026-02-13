@@ -122,6 +122,7 @@ class Dashboard(QMainWindow):
             # display thrust info values
             self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust:.2f}")
             self.max_thrust_widget.setValue(f"{self.parsed_data.max_thrust:.2f}")
+            self.total_impulse_widget.setValue(f"{self.parsed_data.total_impulse:.2f}")
 
             # display communications info values
             self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
@@ -349,6 +350,7 @@ class DataContainer():
         # derived values
         self.data_frequency: float = 0 # in hertz
         self.elapsed_time: float = 0 # in seconds
+        self.total_impulse: float = 0 # in Newton seconds
 
 
 class SerialWorker(QObject):
@@ -440,7 +442,6 @@ class LabelValuePair(QWidget):
         '''Set value of a specific LabelValuePair'''
         self.value.setText(value)
 
-
 # TODO: actually open and close when pressed, add cooldown
 class ValveControlWidget(QWidget):
     '''Container for the valve controls used for the hydraulics'''
@@ -520,7 +521,12 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     else:
         result.max_thrust = window.parsed_data.max_thrust
 
+    # TODO: check whether this makes sense
+    # calculate total impulse using a trapezoid approach
+    result.total_impulse = window.parsed_data.total_impulse + (result.current_thrust + window.parsed_data.current_thrust) * 0.5 * time_since_last_packet
+
     return result
+
 
 if __name__ == '__main__':
     app: QApplication = QApplication()
