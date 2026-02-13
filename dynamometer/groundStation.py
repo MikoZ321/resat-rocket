@@ -79,7 +79,7 @@ class Dashboard(QMainWindow):
         self.serial_thread: QThread | None = None
         self.serial_worker: SerialWorker | None = None
         self._serial_buffer = b""
-        """
+        
         # data buffers for thrust plot
         self.time_buffer: deque[float] = deque(maxlen=2000)
         self.thrust_buffer: deque[float] = deque(maxlen=2000)
@@ -89,7 +89,7 @@ class Dashboard(QMainWindow):
         # plot refresh timer
         self.plot_timer: QTimer = QTimer(self)
         self.plot_timer.setInterval(33)  # ~30 Hz
-        self.plot_timer.timeout.connect(self.update_thrust_plot)"""
+        self.plot_timer.timeout.connect(self.update_thrust_plot)
 
 
     def handle_packet(self, timestamp: float, raw_data: bytes) -> None:
@@ -99,18 +99,21 @@ class Dashboard(QMainWindow):
         """
         # TODO: add thrust plot integration
         self._serial_buffer += raw_data
-        print("GUI thread:", QThread.currentThread())
 
         while b"\n" in self._serial_buffer:
             line, self._serial_buffer = self._serial_buffer.split(b"\n", 1)
 
-            try:
-                parsed = parsePacket(line)
-                thrust = float(parsed["thrust"])
-            except Exception:
-                continue
+            # TODO: protect against corrupted or incomplete packets
+            # TODO: consider changing parsed into class, make it an attribute of Dashboard
+            parsed: dict[str, str] = parsePacket(line)
+            thrust: str = parsed["thrust"]
 
-            self.current_thrust_widget.setValue(f"{thrust:.1f}")
+            # TODO: change from timestamp to elapsed time
+            # log values for thrust plot
+            self.thrust_buffer.append(float(thrust))
+            self.time_buffer.append(timestamp)
+
+            self.current_thrust_widget.setValue(f"{thrust}")
 
 
     def listPorts(self) -> None:
@@ -141,14 +144,13 @@ class Dashboard(QMainWindow):
 
 
     def update_thrust_plot(self) -> None:
-        """if not self.time_buffer:
+        if not self.time_buffer:
             return
 
         self.thrust_curve.setData(
             list(self.time_buffer),
             list(self.thrust_buffer)
-        )"""
-        pass
+        )
 
 
     def _start_serial_worker(self, port_name: str):
@@ -170,7 +172,7 @@ class Dashboard(QMainWindow):
         self.serial_worker.error.connect(self.status_bar.showMessage)
 
         self.serial_thread.start()
-        # self.plot_timer.start()
+        self.plot_timer.start()
 
 
     def _stop_serial_worker(self):
@@ -184,7 +186,7 @@ class Dashboard(QMainWindow):
 
         self.serial_worker = None
         self.serial_thread = None
-        # self.plot_timer.stop()
+        self.plot_timer.stop()
 
 # TODO: remove the names
 class DashboardPanel(QWidget):
