@@ -89,10 +89,10 @@ class Dashboard(QMainWindow):
         # plot refresh timer
         self.plot_timer: QTimer = QTimer(self)
         self.plot_timer.setInterval(33)  # ~30 Hz
-        self.plot_timer.timeout.connect(self.update_thrust_plot)
+        self.plot_timer.timeout.connect(self.updateThrustPlot)
 
 
-    def handle_packet(self, timestamp: float, raw_data: bytes) -> None:
+    def handlePacket(self, timestamp: float, raw_data: bytes) -> None:
         """
         Receives raw serial data from SerialWorker.
         Runs in GUI thread.
@@ -139,11 +139,11 @@ class Dashboard(QMainWindow):
         self.current_port = port_name
         self.status_bar.showMessage(f"Connecting to {port_name}...")
 
-        self._stop_serial_worker()
-        self._start_serial_worker(port_name)
+        self._stopSerialWorker()
+        self._startSerialWorker(port_name)
 
 
-    def update_thrust_plot(self) -> None:
+    def updateThrustPlot(self) -> None:
         if not self.time_buffer:
             return
 
@@ -153,9 +153,9 @@ class Dashboard(QMainWindow):
         )
 
 
-    def _start_serial_worker(self, port_name: str):
+    def _startSerialWorker(self, port_name: str):
 
-        self._stop_serial_worker()
+        self._stopSerialWorker()
 
         self.serial_thread = QThread()
         self.serial_worker = SerialWorker()
@@ -163,11 +163,11 @@ class Dashboard(QMainWindow):
         self.serial_worker.moveToThread(self.serial_thread)
 
         # Proper Qt-safe startup
-        self.serial_worker.set_port(port_name)
+        self.serial_worker.setPort(port_name)
         self.serial_thread.started.connect(self.serial_worker.start)
 
         # Signals
-        self.serial_worker.packet_received.connect(self.handle_packet)
+        self.serial_worker.packet_received.connect(self.handlePacket)
         self.serial_worker.status_changed.connect(self.status_bar.showMessage)
         self.serial_worker.error.connect(self.status_bar.showMessage)
 
@@ -175,7 +175,7 @@ class Dashboard(QMainWindow):
         self.plot_timer.start()
 
 
-    def _stop_serial_worker(self):
+    def _stopSerialWorker(self):
 
         if self.serial_worker:
             self.serial_worker.stop()
@@ -335,7 +335,7 @@ class SerialWorker(QObject):
         self._port_name = None
         self._poll_timer = None
 
-    def set_port(self, port_name: str):
+    def setPort(self, port_name: str):
         self._port_name = port_name
 
     @Slot()
@@ -351,7 +351,7 @@ class SerialWorker(QObject):
 
             # Create polling timer INSIDE worker thread
             self._poll_timer = QTimer(self)
-            self._poll_timer.timeout.connect(self._poll_serial)
+            self._poll_timer.timeout.connect(self._pollSerial)
             self._poll_timer.start(5)  # 5 ms polling interval
 
         except Exception as e:
@@ -368,7 +368,7 @@ class SerialWorker(QObject):
         self.status_changed.emit("Disconnected")
 
     @Slot()
-    def _poll_serial(self):
+    def _pollSerial(self):
         if not self._serial:
             return
 
