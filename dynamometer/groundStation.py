@@ -107,7 +107,6 @@ class Dashboard(QMainWindow):
         Receives raw serial data from SerialWorker.
         Runs in GUI thread.
         """
-        # TODO: add thrust plot integration
         self._serial_buffer += raw_data
 
         while b"\n" in self._serial_buffer:
@@ -116,7 +115,6 @@ class Dashboard(QMainWindow):
             # TODO: protect against corrupted or incomplete packets
             self.parsed_data: DataContainer = parsePacket(timestamp, line)
 
-            # TODO: change from timestamp to elapsed time
             # log values for thrust plot
             self.thrust_buffer.append(self.parsed_data.current_thrust)
             self.time_buffer.append(self.parsed_data.elapsed_time)
@@ -125,6 +123,7 @@ class Dashboard(QMainWindow):
             self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust}")
 
             # display communications info values
+            self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
             self.elapsed_time_widget.setValue(f"{self.parsed_data.elapsed_time:.2f}")
 
 
@@ -347,6 +346,7 @@ class DataContainer():
         self.max_thrust: float = 0 # in Newtons
 
         # derived values
+        self.data_frequency: float = 0 # in hertz
         self.elapsed_time: float = 0 # in seconds
 
 
@@ -495,7 +495,11 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
         result.previous_time = window.parsed_data.current_time
     else:
         result.previous_time = result.current_time
+
     time_since_last_packet: float = result.current_time - result.previous_time
+    # prevent division by zero
+    if time_since_last_packet:
+        result.data_frequency = 1 / time_since_last_packet
 
     result.elapsed_time  = window.parsed_data.elapsed_time + time_since_last_packet
 
