@@ -8,7 +8,7 @@ void setup() {
 void loop() {
   // transmitting two alternating readings, delays correspond to expected sensor collection frequency of 100 Hz
   Serial.println("10");
-  delay(10);
+  delay(1000);
   Serial.println("87");
-  delay(10);
+  delay(1000);
 }

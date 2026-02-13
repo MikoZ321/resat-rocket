@@ -1,10 +1,12 @@
 from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtGui import QAction
+from PySide6.QtCore import QObject, Signal, Slot, QThread, QTimer
+import serial
 import serial.tools.list_ports
+import time
 import pyqtgraph as pg
 from collections import deque
 
-# TODO: read the incoming data from a serial connection
 # TODO: save the information in a .csv file
 
 # TODO: display the readings in a GUI
@@ -38,8 +40,19 @@ class Dashboard(QMainWindow):
         self.setCentralWidget(central_widget)
 
         # init container widgets
-        thrust_plot_container = DashboardPanel("Thrust plot").createThrustPlot()
-        thrust_info_container = DashboardPanel("Thrust info").createThrustInfo()
+        thrust_plot = DashboardPanel("Thrust plot")
+        thrust_plot_container = thrust_plot.createThrustPlot()
+
+        self.thrust_curve = thrust_plot.thrust_curve
+
+        # init thrust info panel
+        thrust_panel = DashboardPanel("Thrust info")
+        thrust_info_container = thrust_panel.createThrustInfo()
+
+        self.current_thrust_widget = thrust_panel.current_thrust
+        self.max_thrust_widget = thrust_panel.max_thrust
+        self.total_impulse_widget = thrust_panel.total_impulse
+
         engine_info_container = DashboardPanel("Engine info").createEngineInfo()
         communication_info_container = DashboardPanel("Communications info").createCommunicationsInfo()
         hydraulics_info_container = DashboardPanel("Hydraulics info").createHydraulicsInfo()
@@ -62,14 +75,49 @@ class Dashboard(QMainWindow):
         # init status bar TODO: style status bar
         self.status_bar = self.statusBar()
 
+        # init serial
+        self.serial_thread: QThread | None = None
+        self.serial_worker: SerialWorker | None = None
+        self._serial_buffer = b""
+        """
+        # data buffers for thrust plot
+        self.time_buffer: deque[float] = deque(maxlen=2000)
+        self.thrust_buffer: deque[float] = deque(maxlen=2000)
+
+        self._t0: float | None = None
+
+        # plot refresh timer
+        self.plot_timer: QTimer = QTimer(self)
+        self.plot_timer.setInterval(33)  # ~30 Hz
+        self.plot_timer.timeout.connect(self.update_thrust_plot)"""
+
+
+    def handle_packet(self, timestamp: float, raw_data: bytes) -> None:
+        """
+        Receives raw serial data from SerialWorker.
+        Runs in GUI thread.
+        """
+        # TODO: add thrust plot integration
+        self._serial_buffer += raw_data
+        print("GUI thread:", QThread.currentThread())
+
+        while b"\n" in self._serial_buffer:
+            line, self._serial_buffer = self._serial_buffer.split(b"\n", 1)
+
+            try:
+                parsed = parsePacket(line)
+                thrust = float(parsed["thrust"])
+            except Exception:
+                continue
+
+            self.current_thrust_widget.setValue(f"{thrust:.1f}")
+
 
     def listPorts(self) -> None:
         '''Method used to list all of the available COM ports'''
         self.select_port_menu.clear()
 
         port_names: list[str] = [port.device for port in serial.tools.list_ports.comports()]
-
-        print([port for port in serial.tools.list_ports.comports()])
         
         for port_name in port_names:
             port_name_action: QAction = self.select_port_menu.addAction(port_name)
@@ -86,7 +134,57 @@ class Dashboard(QMainWindow):
     def setCurrentPort(self, port_name: str) -> None:
         '''Method used to change the serial port from which data are read'''
         self.current_port = port_name
-        self.status_bar.showMessage(f"Port set to {port_name}")
+        self.status_bar.showMessage(f"Connecting to {port_name}...")
+
+        self._stop_serial_worker()
+        self._start_serial_worker(port_name)
+
+
+    def update_thrust_plot(self) -> None:
+        """if not self.time_buffer:
+            return
+
+        self.thrust_curve.setData(
+            list(self.time_buffer),
+            list(self.thrust_buffer)
+        )"""
+        pass
+
+
+    def _start_serial_worker(self, port_name: str):
+
+        self._stop_serial_worker()
+
+        self.serial_thread = QThread()
+        self.serial_worker = SerialWorker()
+
+        self.serial_worker.moveToThread(self.serial_thread)
+
+        # Proper Qt-safe startup
+        self.serial_worker.set_port(port_name)
+        self.serial_thread.started.connect(self.serial_worker.start)
+
+        # Signals
+        self.serial_worker.packet_received.connect(self.handle_packet)
+        self.serial_worker.status_changed.connect(self.status_bar.showMessage)
+        self.serial_worker.error.connect(self.status_bar.showMessage)
+
+        self.serial_thread.start()
+        # self.plot_timer.start()
+
+
+    def _stop_serial_worker(self):
+
+        if self.serial_worker:
+            self.serial_worker.stop()
+
+        if self.serial_thread:
+            self.serial_thread.quit()
+            self.serial_thread.wait()
+
+        self.serial_worker = None
+        self.serial_thread = None
+        # self.plot_timer.stop()
 
 # TODO: remove the names
 class DashboardPanel(QWidget):
@@ -190,20 +288,19 @@ class DashboardPanel(QWidget):
         '''Creates the thrust info panel and returns it'''
         result: DashboardPanel = DashboardPanel("Thrust info")
 
-        current_thrust: LabelValuePair = LabelValuePair("Current thrust", "50", "N")
-        max_thrust: LabelValuePair = LabelValuePair("Maximum thrust", "2000", "N")
-        total_impulse: LabelValuePair = LabelValuePair("Total impulse", "3000", "Ns")
+        self.current_thrust: LabelValuePair = LabelValuePair("Current thrust", "50", "N")
+        self.max_thrust: LabelValuePair = LabelValuePair("Maximum thrust", "2000", "N")
+        self.total_impulse: LabelValuePair = LabelValuePair("Total impulse", "3000", "Ns")
 
         # layout all of the readings vertically
         main_layout: QVBoxLayout = QVBoxLayout()
-        main_layout.addWidget(current_thrust)
-        main_layout.addWidget(max_thrust)
-        main_layout.addWidget(total_impulse)
+        main_layout.addWidget(self.current_thrust)
+        main_layout.addWidget(self.max_thrust)
+        main_layout.addWidget(self.total_impulse)
         result.setLayout(main_layout)
 
         return result
     
-
     # TODO: style graph, connect serial worker
     def createThrustPlot(self) -> DashboardPanel:
         '''Creates the thrust plot panel and returns it'''
@@ -211,11 +308,9 @@ class DashboardPanel(QWidget):
 
         self.graphWidget: pg.PlotWidget = pg.PlotWidget()
 
-        # mock data used for testing 
-        times: deque[float] = deque([1, 2, 3, 4, 5])
-        thrusts: deque[float] = deque([4, 50, 2000, 32, 500])
+        self.graphWidget = pg.PlotWidget()
+        self.thrust_curve = self.graphWidget.plot([], [])
 
-        self.graphWidget.plot(times, thrusts)
         self.graphWidget.setLabel("left", "Thrust (N)")
         self.graphWidget.setLabel("bottom", "Time (s)")
 
@@ -225,6 +320,66 @@ class DashboardPanel(QWidget):
 
         return result
     
+
+class SerialWorker(QObject):
+    packet_received = Signal(float, bytes)
+    status_changed = Signal(str)
+    error = Signal(str)
+
+    def __init__(self, baudrate: int = 115200):
+        super().__init__()
+        self._baudrate = baudrate
+        self._serial = None
+        self._port_name = None
+        self._poll_timer = None
+
+    def set_port(self, port_name: str):
+        self._port_name = port_name
+
+    @Slot()
+    def start(self):
+        try:
+            self._serial = serial.Serial(
+                self._port_name,
+                self._baudrate,
+                timeout=0  # non-blocking
+            )
+
+            self.status_changed.emit(f"Connected to {self._port_name}")
+
+            # Create polling timer INSIDE worker thread
+            self._poll_timer = QTimer(self)
+            self._poll_timer.timeout.connect(self._poll_serial)
+            self._poll_timer.start(5)  # 5 ms polling interval
+
+        except Exception as e:
+            self.error.emit(str(e))
+
+    @Slot()
+    def stop(self):
+        if self._poll_timer:
+            self._poll_timer.stop()
+
+        if self._serial and self._serial.is_open:
+            self._serial.close()
+
+        self.status_changed.emit("Disconnected")
+
+    @Slot()
+    def _poll_serial(self):
+        if not self._serial:
+            return
+
+        try:
+            bytes_waiting = self._serial.in_waiting
+            if bytes_waiting > 0:
+                raw = self._serial.read(bytes_waiting)
+                timestamp = time.monotonic()
+                self.packet_received.emit(timestamp, raw)
+
+        except Exception as e:
+            self.error.emit(str(e))
+
 
 class LabelValuePair(QWidget):
     '''Container for the commonly used label and value combination'''
@@ -237,7 +392,7 @@ class LabelValuePair(QWidget):
         value_unit_layout: QHBoxLayout = QHBoxLayout()
 
         self.value: QLabel = QLabel(value)
-        self.unit:QLabel = QLabel(unit)
+        self.unit: QLabel = QLabel(unit)
 
         # layout value and unit horizontally
         value_unit_layout.addWidget(self.value)
@@ -249,6 +404,11 @@ class LabelValuePair(QWidget):
         main_layout.addWidget(self.label)
         main_layout.addWidget(value_unit_container)
         self.setLayout(main_layout)
+
+
+    def setValue(self, value: str) -> None:
+        '''Set value of a specific LabelValuePair'''
+        self.value.setText(value)
 
 
 # TODO: actually open and close when pressed, add cooldown
@@ -292,6 +452,18 @@ class ValveControlWidget(QWidget):
         self.button.setText("Click to open")
         return None
 
+
+def parsePacket(rawData: bytes) -> dict[str, str]:
+    decoded_data: str = rawData.decode('utf-8')
+
+    value_list: list[str] = list(decoded_data.split(';'))
+    
+    result: dict[str, str] = dict()
+
+    # parse values according to predetermined order
+    result["thrust"] = value_list[0]
+
+    return result
 
 if __name__ == '__main__':
     app: QApplication = QApplication()
