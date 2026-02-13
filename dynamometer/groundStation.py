@@ -120,7 +120,8 @@ class Dashboard(QMainWindow):
             self.time_buffer.append(self.parsed_data.elapsed_time)
 
             # display thrust info values
-            self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust}")
+            self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust:.2f}")
+            self.max_thrust_widget.setValue(f"{self.parsed_data.max_thrust:.2f}")
 
             # display communications info values
             self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
@@ -489,8 +490,10 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     
     result: DataContainer = DataContainer()
 
-    # handle timestamp
+    # handle time calculations
     result.current_time = timestamp
+    
+    # calculate data frequency
     if window.parsed_data.current_time != 0:
         result.previous_time = window.parsed_data.current_time
     else:
@@ -501,14 +504,21 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     if time_since_last_packet:
         result.data_frequency = 1 / time_since_last_packet
 
+    # calculate elapsed time
     result.elapsed_time  = window.parsed_data.elapsed_time + time_since_last_packet
 
 
-    # parse values according to predetermined order
+    # parse thrust value
     try:
         result.current_thrust = float(value_list[0])
     except Exception:
         result.current_thrust = 0
+
+    # keep track of max thrust
+    if result.current_thrust > window.parsed_data.max_thrust:
+        result.max_thrust = result.current_thrust
+    else:
+        result.max_thrust = window.parsed_data.max_thrust
 
     return result
 

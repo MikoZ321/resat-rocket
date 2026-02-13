@@ -7,9 +7,13 @@ void setup() {
 }
 
 void loop() {
-  // transmitting two alternating readings, delays correspond to a test sensor frequency of 10 Hz
+  // transmitting four alternating readings, delays correspond to a test sensor frequency of 1 Hz
   Serial.println("10");
-  delay(100);
+  delay(1000);
   Serial.println("87");
-  delay(100);
+  delay(1000);
+  Serial.println("50");
+  delay(1000);
+  Serial.println("100");
+  delay(1000);
 }
