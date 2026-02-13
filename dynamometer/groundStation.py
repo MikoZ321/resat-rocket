@@ -9,7 +9,6 @@ from collections import deque
 
 # TODO: save the information in a .csv file
 
-# TODO: display the readings in a GUI
 class Dashboard(QMainWindow):
     '''Serves as the class container for the entire GUI'''
     def __init__(self, app: QApplication) -> None:
@@ -91,6 +90,9 @@ class Dashboard(QMainWindow):
         self.plot_timer.setInterval(33)  # ~30 Hz
         self.plot_timer.timeout.connect(self.updateThrustPlot)
 
+        # init empty data container
+        self.parsed_data = DataContainer()
+
 
     def handlePacket(self, timestamp: float, raw_data: bytes) -> None:
         """
@@ -104,16 +106,14 @@ class Dashboard(QMainWindow):
             line, self._serial_buffer = self._serial_buffer.split(b"\n", 1)
 
             # TODO: protect against corrupted or incomplete packets
-            # TODO: consider changing parsed into class, make it an attribute of Dashboard
-            parsed: dict[str, str] = parsePacket(line)
-            thrust: str = parsed["thrust"]
+            self.parsed_data: DataContainer = parsePacket(timestamp, line)
 
             # TODO: change from timestamp to elapsed time
             # log values for thrust plot
-            self.thrust_buffer.append(float(thrust))
-            self.time_buffer.append(timestamp)
+            self.thrust_buffer.append(self.parsed_data.current_thrust)
+            self.time_buffer.append(self.parsed_data.elapsed_time)
 
-            self.current_thrust_widget.setValue(f"{thrust}")
+            self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust}")
 
 
     def listPorts(self) -> None:
@@ -323,6 +323,21 @@ class DashboardPanel(QWidget):
         return result
     
 
+class DataContainer():
+    '''Container used to store both the incoming telemetry and derived quantities'''
+    def __init__(self) -> None:
+        # incoming telemetry values
+        self.current_thrust: float = 0 # in Newtons
+        self.current_time: float = 0 # in seconds
+
+        # historical telemetry values
+        self.previous_time: float = 0 # in seconds
+        self.max_thrust: float = 0 # in Newtons
+
+        # derived values
+        self.elapsed_time: float = 0 # in seconds
+
+
 class SerialWorker(QObject):
     packet_received = Signal(float, bytes)
     status_changed = Signal(str)
@@ -455,15 +470,29 @@ class ValveControlWidget(QWidget):
         return None
 
 
-def parsePacket(rawData: bytes) -> dict[str, str]:
+def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     decoded_data: str = rawData.decode('utf-8')
 
     value_list: list[str] = list(decoded_data.split(';'))
     
-    result: dict[str, str] = dict()
+    result: DataContainer = DataContainer()
+
+    # handle timestamp
+    result.current_time = timestamp
+    if window.parsed_data.current_time != 0:
+        result.previous_time = window.parsed_data.current_time
+    else:
+        result.previous_time = result.current_time
+    time_since_last_packet: float = result.current_time - result.previous_time
+
+    result.elapsed_time  = window.parsed_data.elapsed_time + time_since_last_packet
+
 
     # parse values according to predetermined order
-    result["thrust"] = value_list[0]
+    try:
+        result.current_thrust = float(value_list[0])
+    except Exception:
+        result.current_thrust = 0
 
     return result
 
