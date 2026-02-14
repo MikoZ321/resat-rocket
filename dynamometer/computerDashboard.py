@@ -7,7 +7,7 @@ import time
 import pyqtgraph as pg
 from collections import deque
 
-# TODO: save the information in a .csv file
+# TODO: think about timestamp vs a time value from the telemetry
 
 class Dashboard(QMainWindow):
     '''Serves as the class container for the entire GUI'''
@@ -63,7 +63,13 @@ class Dashboard(QMainWindow):
         self.elapsed_time_widget = communications_info.elapsed_time
 
         hydraulics_info_container = DashboardPanel("Hydraulics info").createHydraulicsInfo()
-        tank_info_container = DashboardPanel("Tank info").createTankInfo()
+
+        # init tank info panel
+        tank_info = DashboardPanel("Tank info")
+        tank_info_container = tank_info.createTankInfo()
+
+        self.fuel_pressure_widget = tank_info.fuel_pressure
+        self.oxidizer_pressure_widget = tank_info.oxidizer_pressure
 
         # init grid to organize widgets
         main_grid_layout: QGridLayout = QGridLayout()
@@ -127,6 +133,10 @@ class Dashboard(QMainWindow):
             # display communications info values
             self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
             self.elapsed_time_widget.setValue(f"{self.parsed_data.elapsed_time:.2f}")
+
+            # display tank info values
+            self.oxidizer_pressure_widget.setValue(f"{self.parsed_data.oxidizer_pressure:.2f}")
+            self.fuel_pressure_widget.setValue(f"{self.parsed_data.fuel_pressure:.2f}")
 
 
     def listPorts(self) -> None:
@@ -284,16 +294,16 @@ class DashboardPanel(QWidget):
         '''Creates the tank info panel and returns it'''
         result: DashboardPanel = DashboardPanel("Tank info")
 
-        fuel_pressure: LabelValuePair = LabelValuePair("Fuel pressure", "20", "bar")
+        self.fuel_pressure: LabelValuePair = LabelValuePair("Fuel pressure", "20", "bar")
         # TODO: add tank graphic to track piston position
         tank_container: QWidget = QWidget()
-        oxidizer_pressure: LabelValuePair = LabelValuePair("Oxidizer pressure", "20", "bar")
+        self.oxidizer_pressure: LabelValuePair = LabelValuePair("Oxidizer pressure", "20", "bar")
 
         # layout all components vertically
         main_layout: QVBoxLayout = QVBoxLayout()
-        main_layout.addWidget(fuel_pressure)
+        main_layout.addWidget(self.fuel_pressure)
         main_layout.addWidget(tank_container)
-        main_layout.addWidget(oxidizer_pressure)
+        main_layout.addWidget(self.oxidizer_pressure)
         result.setLayout(main_layout)
 
         return result
@@ -340,11 +350,13 @@ class DataContainer():
     '''Container used to store both the incoming telemetry and derived quantities'''
     def __init__(self) -> None:
         # incoming telemetry values
+        self.time_sent: float = 0 # in seconds
+        self.time_received: float = 0 # in seconds
         self.current_thrust: float = 0 # in Newtons
-        self.current_time: float = 0 # in seconds
+        self.oxidizer_pressure: float = 0 # in Pascals
+        self.fuel_pressure: float = 0 # in Pascals
 
         # historical telemetry values
-        self.previous_time: float = 0 # in seconds
         self.max_thrust: float = 0 # in Newtons
 
         # derived values
@@ -483,7 +495,7 @@ class ValveControlWidget(QWidget):
         self.button.setText("Click to open")
         return None
 
-
+# TODO: maybe add packet travel time to dashboard
 def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     decoded_data: str = rawData.decode('utf-8')
 
@@ -492,15 +504,21 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     result: DataContainer = DataContainer()
 
     # handle time calculations
-    result.current_time = timestamp
+    try:
+        result.time_sent = float(value_list[0]) / 1000
+    except Exception:
+        result.time_sent = 0
+    result.time_received = timestamp
     
     # calculate data frequency
-    if window.parsed_data.current_time != 0:
-        result.previous_time = window.parsed_data.current_time
-    else:
-        result.previous_time = result.current_time
+    previous_time_sent: float = 0
 
-    time_since_last_packet: float = result.current_time - result.previous_time
+    if window.parsed_data.time_sent != 0:
+        previous_time_sent = window.parsed_data.time_sent
+    else:
+        previous_time_sent = result.time_sent
+
+    time_since_last_packet: float = result.time_sent - previous_time_sent
     # prevent division by zero
     if time_since_last_packet:
         result.data_frequency = 1 / time_since_last_packet
@@ -511,7 +529,7 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
 
     # parse thrust value
     try:
-        result.current_thrust = float(value_list[0])
+        result.current_thrust = float(value_list[1])
     except Exception:
         result.current_thrust = 0
 
@@ -524,6 +542,18 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     # TODO: check whether this makes sense
     # calculate total impulse using a trapezoid approach
     result.total_impulse = window.parsed_data.total_impulse + (result.current_thrust + window.parsed_data.current_thrust) * 0.5 * time_since_last_packet
+
+    # parse oxidizer pressure
+    try:
+        result.oxidizer_pressure = float(value_list[2])
+    except Exception:
+        result.oxidizer_pressure = 0
+
+    # parse fuel pressure
+    try:
+        result.fuel_pressure = float(value_list[3])
+    except Exception:
+        result.fuel_pressure = 0
 
     return result
 
