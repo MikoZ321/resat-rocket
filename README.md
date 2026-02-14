@@ -3,27 +3,33 @@ All of the code used by the ReSat team during the development of a liquid-propel
 
 # Dynamometer
 
-The *dynamometer* directory contains the code used during the engine test campaign. This includes both a C++ program meant to be flashed onto the onboard microcontroller and a Python script, which is to be executed on a seperate computer connected via USB.
+The *dynamometer* directory contains the code used during the engine test campaign. This includes C++ programs meant to be flashed onto the onboard and ground station microcontrollers, a C++ program mean to emulate a properly working ground station for testing purposes, and a Python script, which is to be executed on a seperate computer connected via USB to the ground station.
 
 ## Aim 
 
-The aim of the microntroller (dynamometer.ino) code is to:
+The aim of the onboard microntroller (onboardDynamometer.ino) code is to:
 * control the fuel and oxidizer supply
 * ignite the engine to begin combustion
 * collect data from several peripherals and sensors described in the next section
 * save all of the information on a SD-card
-* send the data to a computer via a serial connection
+* send the data to the ground station via telemetry
 
-The aim of the ground station (groundStation.py) code is to:
+The aim of the ground station microcontroller (groundStationDynamometer.ino) code is to:
+* receive the telemetry data from the onboard microcontroller
+* parse the telemetry data
+* check for and deal with corrupt data packets or errors in transmission
+* save the information on a SD-card for redundancy
+* send the data to the computer via a USB connection
+
+The aim of the computer dashboard (computerDashboard.py) code is to:
 * read the incoming data from a serial connection
-* save the information in a .csv file for redundancy
 * display the readings in a GUI
 
 ## Dependencies
 
-For dynamometer.ino:
+For dummySerialCode.ino, onboardDynamometer.ino, and groundStationDynamometer.ino:
 * This project was coded in Arduino IDE using the esp32 board library by Espressif (for a step-by-step setup process consult the [link](https://dronebotworkshop.com/esp32-intro/))
-For groundStation.py:
+For computerDashboard.py:
 * PySide6
 * pyqtgraph
 * pySerial

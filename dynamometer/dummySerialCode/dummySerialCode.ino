@@ -1,7 +1,7 @@
 // dummy code to test integration with dashboard on only one variable
 
 void setup() {
-  // must correspond to bandwith of serial connection in groundStation.py
+  // must correspond to bandwith of serial connection in computerDashboard.py
   // arbitrarily set at highest possible, will be decreased after more calculations of data transfer needs
   Serial.begin(115200);
 }
