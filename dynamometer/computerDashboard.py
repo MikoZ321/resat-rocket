@@ -131,6 +131,7 @@ class Dashboard(QMainWindow):
             self.total_impulse_widget.setValue(f"{self.parsed_data.total_impulse:.2f}")
 
             # display communications info values
+            self.rssi_widget.setValue(f"{self.parsed_data.rssi:.2f}")
             self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
             self.elapsed_time_widget.setValue(f"{self.parsed_data.elapsed_time:.2f}")
 
@@ -355,6 +356,7 @@ class DataContainer():
         self.current_thrust: float = 0 # in Newtons
         self.oxidizer_pressure: float = 0 # in Pascals
         self.fuel_pressure: float = 0 # in Pascals
+        self.rssi: float = 0 # in dBm
 
         # historical telemetry values
         self.max_thrust: float = 0 # in Newtons
@@ -554,6 +556,12 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
         result.fuel_pressure = float(value_list[3])
     except Exception:
         result.fuel_pressure = 0
+
+    # parse rssi
+    try:
+        result.rssi = float(value_list[8])
+    except Exception:
+        result.rssi = 0
 
     return result
 
