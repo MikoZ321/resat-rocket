@@ -52,7 +52,11 @@ class Dashboard(QMainWindow):
         self.max_thrust_widget = thrust_info.max_thrust
         self.total_impulse_widget = thrust_info.total_impulse
 
-        engine_info_container = DashboardPanel("Engine info").createEngineInfo()
+        # init engine info panel
+        engine_info = DashboardPanel("Engine info")
+        engine_info_container = engine_info.createEngineInfo()
+
+        self.brightness_widget = engine_info.brightness
 
         # init communications info panel
         communications_info = DashboardPanel("Communications info")
@@ -129,6 +133,9 @@ class Dashboard(QMainWindow):
             self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust:.2f}")
             self.max_thrust_widget.setValue(f"{self.parsed_data.max_thrust:.2f}")
             self.total_impulse_widget.setValue(f"{self.parsed_data.total_impulse:.2f}")
+
+            # display engine info values
+            self.brightness_widget.setValue(f"{self.parsed_data.brightness:.2f}")
 
             # display communications info values
             self.rssi_widget.setValue(f"{self.parsed_data.rssi:.2f}")
@@ -250,14 +257,15 @@ class DashboardPanel(QWidget):
         burn_info_container: QWidget = QWidget()
         ignite_button: QPushButton = QPushButton("Ignite")
 
+        # TODO: add burn_time calculations
         # create burn_info_container subcomponents
         burn_time: LabelValuePair = LabelValuePair("Burn time", "3", "s")
-        brightness: LabelValuePair = LabelValuePair("Brightness", "37", "%")
+        self.brightness: LabelValuePair = LabelValuePair("Brightness", "37", "%")
 
         # layout burn_info_container
         burn_info_layout: QHBoxLayout = QHBoxLayout()
         burn_info_layout.addWidget(burn_time)
-        burn_info_layout.addWidget(brightness)
+        burn_info_layout.addWidget(self.brightness)
         burn_info_container.setLayout(burn_info_layout)
 
 
@@ -356,6 +364,7 @@ class DataContainer():
         self.current_thrust: float = 0 # in Newtons
         self.oxidizer_pressure: float = 0 # in Pascals
         self.fuel_pressure: float = 0 # in Pascals
+        self.brightness: float = 0 # %
         self.rssi: float = 0 # in dBm
 
         # historical telemetry values
@@ -528,7 +537,6 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
     # calculate elapsed time
     result.elapsed_time  = window.parsed_data.elapsed_time + time_since_last_packet
 
-
     # parse thrust value
     try:
         result.current_thrust = float(value_list[1])
@@ -556,6 +564,12 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
         result.fuel_pressure = float(value_list[3])
     except Exception:
         result.fuel_pressure = 0
+
+    # parse brightness
+    try:
+        result.brightness = float(value_list[7])
+    except Exception:
+        result.brightness = 0
 
     # parse rssi
     try:
