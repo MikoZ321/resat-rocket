@@ -41,6 +41,10 @@ Each data packet contains the following sensor readings, all saved as C++ floats
 Additonally, at the ground station the following values will be attached, before being sent to the computer dashboard:
 * received signal strength indicator
 
+The data will be transfered between components as displayed in the diagram below.
+
+![Data transfer diagram](./media/dynamometerDataTransfers.png "Data transfer diagram")
+
 ## Dependencies
 
 For dummySerialCode.ino, onboardDynamometer.ino, and groundStationDynamometer.ino:
