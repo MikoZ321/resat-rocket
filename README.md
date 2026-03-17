@@ -25,6 +25,41 @@ The aim of the computer dashboard (computerDashboard.py) code is to:
 * read the incoming data from a serial connection
 * display the readings in a GUI
 
+## Hardware
+
+The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. The board will receive data from the following peripherals:
+* loadcell (measuring the thrust) through HX711 ADC 1
+* MH-series loadcell (measuring the weight of the oxidizer tank) through HX711 ADC 2
+* MAX31855 temperature sensor through SPI
+* MAX31855 temperature sensor through SPI
+* RFD868 radio interface through UART
+* M10Q-5883 GPS through I2C and UART
+* LTC2944IDD#PBF main battery level sensor through I2C
+* BMP581 atmospheric pressure sensor through I2C
+* LSM6DSOXTR accelerometer and gyroscope through I2C
+* H3LIS331DLTR high-G accelerometer through I2C
+* ADS1115IDGSR high-accuracy ADC, containing:
+    * the main battery level through a 100k/27k voltage divider
+    * fuel pressure through a 22k/10k voltage divider
+    * oxidizer pressure through a 22k/10k voltage divider
+    * the pyro battery level through a 100k/33k voltage divider
+* three external ADS1115IDGSR with four SS39ET Hall-Effect sensors each, used to measure the position of the piston within the tank
+
+It will output data to the following peripherals:
+* MG996R servo motor
+* MG996R servo motor
+* W25Q64JWSSIQ SD-card interface
+* RFD868 radio interface through UART
+* Hawkeye 4K Split V5 video camera trigger
+* buzzer
+* WS2812 with four interfacable LEDs
+* MCP23017-E/SS serial interface through I2C, containing:
+    * the main igniter
+    * the drogue igniter
+    * the engine ignition
+    * the fuel solenoid valve
+    * the oxidizer solenoid valve
+
 ## Software Architecture
 
 Each data packet contains the following sensor readings, all saved as C++ floats and seperated by a semicolon (;):
