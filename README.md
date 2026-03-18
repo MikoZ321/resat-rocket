@@ -47,19 +47,24 @@ The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8
 * three external ADS1115IDGSR with four SS39ET Hall-Effect sensors each, used to measure the position of the piston within the tank
 
 It will output data to the following peripherals:
-* MG996R servo motor
-* MG996R servo motor
-* W25Q64JWSSIQ SD-card interface
+* MG996R servo motor for fuel valve
+* MG996R servo motor for oxidizer valve
+* SD-card interface through SPI
+* W25Q64JWSSIQ flash memory through SPI
 * RFD868 radio interface through UART
 * Hawkeye 4K Split V5 video camera trigger
 * buzzer
-* WS2812 with four interfacable LEDs
+* WS2812 with four interfacable LEDs through I2C
 * MCP23017-E/SS serial interface through I2C, containing:
     * the main igniter
     * the drogue igniter
     * the engine ignition
     * the fuel solenoid valve
     * the oxidizer solenoid valve
+
+The data handling is displayed in the diagram below.
+
+![Data handling diagram](./media/dynamometerDataHandling.png "Data handling diagram")
 
 ## Software Architecture
 
