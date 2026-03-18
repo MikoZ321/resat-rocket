@@ -54,7 +54,7 @@ It will output data to the following peripherals:
 * RFD868 radio interface through UART
 * Hawkeye 4K Split V5 video camera trigger
 * buzzer
-* WS2812 with four interfacable LEDs through I2C
+* WS2812 with four interfacable LEDs
 * MCP23017-E/SS serial interface through I2C, containing:
     * the main igniter
     * the drogue igniter
