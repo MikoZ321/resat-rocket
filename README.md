@@ -34,6 +34,7 @@ The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8
 * MAX31855 temperature sensor through SPI
 * RFD868 radio interface through UART
 * M10Q-5883 GPS through I2C and UART
+* a photoresistor through the internal ADC
 * LTC2944IDD#PBF main battery level sensor through I2C
 * BMP581 atmospheric pressure sensor through I2C
 * LSM6DSOXTR accelerometer and gyroscope through I2C
