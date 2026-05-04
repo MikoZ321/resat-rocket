@@ -64,9 +64,9 @@ It will output data to the peripherals described in Table 2.
 |Hawkeye 4K Split V5 camera module|Triggers the video camer to start recording|-|GPIO|
 |Huaneng QMB-09B-03 buzzer|Triggers the buzzer for easier recovery|-|GPIO|
 |WS2812 LED interface|Displays status and enables easier recovery|-|GPIO|
-|Main igniter|-|MCP23017-E/SS|I2C| 
-|Drogue igniter|-|MCP23017-E/SS|I2C| 
-|Engine igniter|-|MCP23017-E/SS|I2C| 
+|Main igniter|Ignites a small combustion charge to release the main parachute|MCP23017-E/SS|I2C| 
+|Drogue igniter|Ignites a small combustion charge to release the drogue parachute|MCP23017-E/SS|I2C| 
+|Engine igniter|Ignites the engine|MCP23017-E/SS|I2C| 
 |Fuel solenoid valve|Controls the flow of fuel to the engine|MCP23017-E/SS|I2C| 
 |Oxidizer solenoid valve|Controls the flow of oxidizer to the engine|MCP23017-E/SS|I2C| 
 
