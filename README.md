@@ -27,44 +27,56 @@ The aim of the computer dashboard (computerDashboard.py) code is to:
 
 ## Hardware
 
-The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. The board will receive data from the following peripherals:
-* loadcell (measuring the thrust) through HX711 ADC 1
-* MH-series loadcell (measuring the weight of the oxidizer tank) through HX711 ADC 2
-* MAX31855 temperature sensor through SPI
-* MAX31855 temperature sensor through SPI
-* RFD868 radio interface through UART
-* M10Q-5883 GPS through I2C and UART
-* a photoresistor through the internal ADC
-* LTC2944IDD#PBF main battery level sensor through I2C
-* BMP581 atmospheric pressure sensor through I2C
-* LSM6DSOXTR accelerometer and gyroscope through I2C
-* H3LIS331DLTR high-G accelerometer through I2C
-* ADS1115IDGSR high-accuracy ADC, containing:
-    * the main battery level through a 100k/27k voltage divider
-    * fuel pressure through a 22k/10k voltage divider
-    * oxidizer pressure through a 22k/10k voltage divider
-    * the pyro battery level through a 100k/33k voltage divider
-* three external ADS1115IDGSR with four SS39ET Hall-Effect sensors each, used to measure the position of the piston within the tank
+The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. The board will receive data from the peripherals described in Table 1.
 
-It will output data to the following peripherals:
-* MG996R servo motor for fuel valve
-* MG996R servo motor for oxidizer valve
-* SD-card interface through SPI
-* W25Q64JWSSIQ flash memory through SPI
-* RFD868 radio interface through UART
-* Hawkeye 4K Split V5 video camera trigger
-* buzzer
-* WS2812 with four interfacable LEDs
-* MCP23017-E/SS serial interface through I2C, containing:
-    * the main igniter
-    * the drogue igniter
-    * the engine ignition
-    * the fuel solenoid valve
-    * the oxidizer solenoid valve
+|Name|Description|Through|Communication protocol|
+|----|----|----|----|
+|Thrust loadcell|Measures the thrust|ADS1232|SPI|
+|MH-series loadcell|Measures the weight of the oxidizer tank|NAU7802|I2C|
+|Top thermocouple|Measures the temperature at the top of the engine|MAX31856|SPI|
+|Bottom thermocouple|Measures the temperature at the bottom of the engine|MAX31856|SPI|
+|RFD868 radio interface|Enables two-way communication with the ground station|-|UART|
+|M10Q-5883 GPS|Provides geolocation data|-|I2C|
+|M10Q-5883 GPS|Provides redundant geolocation data|-|UART|
+|LTC2944IDD#PBF battery level sensor|Measures the main battery level|-|I2C|
+|BMP581 pressure sensor|Measures atmospheric pressure|-|I2C|
+|LSM6DSOXTR 6-axis IMU|Measures acceleration and angular velocity|-|I2C|
+|H3LIS331DLTR high-g accelerometer|Measures acceleration for redundancy|-|I2C|
+|Main battery voltage|Measures the voltage across the main battery|100k/27k voltage divider & ADS1115IDGSR|I2C|
+|Fuel pressure transducer|Measures the fuel pressure|22k/10k voltage divider & ADS1115IDGSR|I2C|
+|Oxidizer pressure transducer|Measures the oxidizer pressure|22k/10k voltage divider & ADS1115IDGSR|I2C|
+|Pyro battery voltage|Measures the voltage across the pyro battery|100k/33k voltage divider & ADS1115IDGSR|I2C|
+|External piston location module|Measures the location of the piston in the tank|ADS1115IDGSR|I2C|
 
-The data handling is displayed in the diagram below.
+**Table 1**: Dynamometer PCB input peripherals
+
+Where the External Hall effect sensing module will be comprised of 3 Hall effect extensions. Each extension consists of a ADS1114IDGSR ADC taking input from 4 SS39ET Hall effect sensors. The first of these is directly connected to the main PCB through I2C, with the other 2 being chained together with the first, to allow for full access to all 12 sensors. The piston moving within the tank has a magnet inside of it and the Hall effect sensors are spaced apart from eachother, spanning the length of the piston path. This allows the location of the piston to be gauged by measuring where the Hall effect is the strongest. 
+
+It will output data to the peripherals described in Table 2.
+
+|Name|Description|Through|Communication protocol|
+|----|----|----|----|
+|MG966R fuel valve servo|Opens and closes the fuel valve|-|PWM|
+|MG966R oxidizer valve servo|Opens and closes the oxidizer valve|-|PWM|
+|SD-card interface|Allows for storing long-term data|-|SPI|
+|W25Q64JWSSIQ flash memory|Allows for storing current data and buffering SD-card input|-|SPI|
+|RFD868 radio interface|Enables two-way communication with the ground station|-|UART|
+|Hawkeye 4K Split V5 camera module|Triggers the video camer to start recording|-|GPIO|
+|Huaneng QMB-09B-03 buzzer|Triggers the buzzer for easier recovery|-|GPIO|
+|WS2812 LED interface|Displays status and enables easier recovery|-|GPIO|
+|Main igniter|-|MCP23017-E/SS|I2C| 
+|Drogue igniter|-|MCP23017-E/SS|I2C| 
+|Engine igniter|-|MCP23017-E/SS|I2C| 
+|Fuel solenoid valve|Controls the flow of fuel to the engine|MCP23017-E/SS|I2C| 
+|Oxidizer solenoid valve|Controls the flow of oxidizer to the engine|MCP23017-E/SS|I2C| 
+
+**Table 2**: Dynamometer PCB output peripherals
+
+The information presented above is sumarised in the diagram in Figure 1.
 
 ![Data handling diagram](./media/dynamometerDataHandling.png "Data handling diagram")
+
+**Figure 1**: Data handling diagram for the dynamometer PCB
 
 ## Software Architecture
 
