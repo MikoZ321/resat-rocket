@@ -50,9 +50,9 @@ The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8
 
 **Table 1**: Dynamometer PCB input peripherals
 
-Where the External Hall effect sensing module will be comprised of 3 Hall effect extensions. Each extension consists of a ADS1114IDGSR ADC taking input from 4 SS39ET Hall effect sensors. The first of these is directly connected to the main PCB through I2C, with the other 2 being chained together with the first, to allow for full access to all 12 sensors. The piston moving within the tank has a magnet inside of it and the Hall effect sensors are spaced apart from eachother, spanning the length of the piston path. This allows the location of the piston to be gauged by measuring where the Hall effect is the strongest. 
+The external piston location module will be comprised of 3 Hall effect extensions. Each extension consists of an ADS1114IDGSR ADC taking input from 4 SS39ET Hall effect sensors. The first of these is directly connected to the main PCB through I2C, with the other 2 being chained together with the first, to allow for full access to all 12 sensors. The piston moving within the tank has a magnet inside of it and the Hall effect sensors are spaced apart from eachother, spanning the length of the piston path. This allows the location of the piston to be gauged by measuring where the Hall effect is the strongest. 
 
-It will output data to the peripherals described in Table 2.
+The MCU will also output data to the peripherals described in Table 2.
 
 |Name|Description|Through|Communication protocol|
 |----|----|----|----|
@@ -72,13 +72,22 @@ It will output data to the peripherals described in Table 2.
 
 **Table 2**: Dynamometer PCB output peripherals
 
-The information presented above is sumarised in the diagram in Figure 1.
+The information presented above is summarized in the diagram in Figure 1.
 
 ![Data handling diagram](./media/dynamometerDataHandling.png "Data handling diagram")
 
 **Figure 1**: Data handling diagram for the dynamometer PCB
 
 ## Software Architecture
+
+The onboard computer relies on a three-layered tick structure:
+|Name|Frequency [Hz]|Time interval [ms]|Actions|
+|-|-|-|-|
+|Fast (master) tick|50|20|Read Tier A sensors and construct MiniFrame|
+|Slow tick|25|40|Read Tier B sensors, construct TelemetryFrame, write telemetry to radio buffer|
+|House tick|5|200|Read Tier C sensors|-|
+
+The master tick is implemented using the `ticker` namespace, whose implementation is based on the built-in `esp_timer`. 
 
 Each data packet contains the following sensor readings, all saved as C++ floats and seperated by a semicolon (;):
 * time
