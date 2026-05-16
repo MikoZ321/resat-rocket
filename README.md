@@ -7,7 +7,7 @@ The *dynamometer* directory contains the code used during the engine test campai
 
 ## Aim 
 
-The aim of the onboard microntroller (onboardDynamometer.ino) code is to:
+The aim of the onboard microntroller (`dynamometer/onboard_computer`) code is to:
 * control the fuel and oxidizer supply
 * ignite the engine to begin combustion
 * collect data from several peripherals and sensors described in the next section
@@ -27,7 +27,7 @@ The aim of the computer dashboard (computerDashboard.py) code is to:
 
 ## Hardware
 
-The .ino files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. The board will receive data from the peripherals described in Table 1.
+The C++ files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. However, for testing and development purposes the environement is currently configured to the ESP32 devkit board. The board will receive data from the peripherals described in Table 1.
 
 |Name|Description|Through|Communication protocol|
 |----|----|----|----|
@@ -109,8 +109,11 @@ The data will be transfered between components as displayed in the diagram below
 
 ## Dependencies
 
-For dummySerialCode.ino, onboardDynamometer.ino, and groundStationDynamometer.ino:
+For dummySerialCode.ino and groundStationDynamometer.ino:
 * This project was coded in Arduino IDE using the esp32 board library by Espressif (for a step-by-step setup process consult the [link](https://dronebotworkshop.com/esp32-intro/))
+
+For `dynamometer/onboard_computer`:
+* Created in the PlatformIO IDE extension for VS Code
 
 For computerDashboard.py:
 * PySide6
