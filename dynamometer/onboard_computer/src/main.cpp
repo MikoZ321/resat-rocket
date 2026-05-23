@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#include "scheduler/scheduler.h"
-#include "ticker/ticker.h"
+#include "core/scheduler.h"
+#include "core/ticker.h"
 
 void setup() {
   Serial.begin(115200);
