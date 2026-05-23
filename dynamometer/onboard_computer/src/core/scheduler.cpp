@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include "config.h"
+#include "core/telemetry.h"
 
 namespace scheduler {
     void begin() {
@@ -27,5 +28,14 @@ namespace scheduler {
             Serial.print(", C");
         }
         Serial.println("");
+
+        telemetry::assembleMiniFrame();
+        // TODO: write mini frame to flash
+
+        if (is_slow_tick) {
+            telemetry::assembleFullFrame();
+            // TODO: write full frame to flash
+            // TODO: transmit full frame to ground station
+        }
     }
 }

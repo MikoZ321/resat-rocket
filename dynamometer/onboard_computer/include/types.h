@@ -7,7 +7,7 @@
 typedef struct __attribute__((packed)) {
    // Header
    std::uint8_t sync_bytes[2]; // 0xAA 0x55
-   std::uint16_t sequence_number;
+   std::uint16_t telemetry_frame_index;
    std::uint32_t timestamp_ms; 
    // Tier A sensors
    float acceleration_main[3];
@@ -40,7 +40,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
    // Header
    std::uint8_t sync_bytes[2]; // 0xBB 0x66
-   std::uint16_t sequence_number;
+   std::uint16_t telemetry_frame_index;
    std::uint32_t timestamp_ms; 
    // Tier A sensors
    float acceleration_main[3];
