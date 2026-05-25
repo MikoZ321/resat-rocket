@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "state.h"
 #include "types.h"
 
 static full_telemetry_frame_t s_full_frame;
@@ -23,6 +24,7 @@ namespace telemetry {
         // TODO: Fill Tier C sensor readings
 
         // TODO: Fill is_valid_reading_mask
+        s_full_frame.flight_phase = state::getFlightPhase();
         // TODO: Set crc
     }
 

@@ -4,6 +4,14 @@
 
 #include <cstdint>
 
+enum class FlightPhase : std::uint8_t {
+    PRE_LAUNCH,
+    ARMED,
+    LAUNCHED,
+    DESCENT,
+    LANDED
+};
+
 typedef struct __attribute__((packed)) {
    // Header
    std::uint8_t sync_bytes[2]; // 0xAA 0x55
@@ -34,6 +42,7 @@ typedef struct __attribute__((packed)) {
    float main_battery_level;
    // Tail metadata
    std::uint16_t is_valid_reading_mask;
+   std::uint8_t flight_phase;
    std::uint16_t crc;
 } full_telemetry_frame_t;
 
@@ -50,7 +59,7 @@ typedef struct __attribute__((packed)) {
    float air_temperature;
    float altitude;
    float engine_thrust;
-   // Tail metadata
+   // Truncated tail metadata
    std::uint16_t is_valid_reading_mask;
    std::uint16_t crc;
 } mini_telemetry_frame_t;
