@@ -63,4 +63,5 @@ typedef struct __attribute__((packed)) {
    std::uint16_t is_valid_reading_mask;
    std::uint16_t crc;
 } mini_telemetry_frame_t;
+
 #endif

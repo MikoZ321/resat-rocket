@@ -3,7 +3,6 @@
 #include <Arduino.h>
 
 #include "state.h"
-#include "types.h"
 
 static full_telemetry_frame_t s_full_frame;
 static mini_telemetry_frame_t s_mini_frame;

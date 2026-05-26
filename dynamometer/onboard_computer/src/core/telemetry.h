@@ -1,7 +1,7 @@
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
-#include "types.h"
+#include "shared/types.h"
 
 namespace telemetry {
     void assembleFullFrame(); // Assemble a full telemetry frame from the current sensor readings
