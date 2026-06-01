@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "shared/crc.h"
 #include "state.h"
 
 static full_telemetry_frame_t s_full_frame;
@@ -24,7 +25,7 @@ namespace telemetry {
 
         // TODO: Fill is_valid_reading_mask
         s_full_frame.flight_phase = state::getFlightPhase();
-        // TODO: Set crc
+        s_full_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_full_frame), sizeof(s_full_frame) - sizeof(s_full_frame.crc));
     }
 
     void assembleMiniFrame() {
@@ -39,7 +40,7 @@ namespace telemetry {
         // TODO: Fill Tier A sensor readings
 
         // TODO: Fill is_valid_reading_mask
-        // TODO: Set crc
+        s_mini_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_mini_frame), sizeof(s_mini_frame) - sizeof(s_mini_frame.crc));
     }
 
     const full_telemetry_frame_t& getFullFrame() {
