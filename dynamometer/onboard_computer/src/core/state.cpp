@@ -1,17 +1,30 @@
 #include "state.h"
 
-std::uint8_t s_current_flight_phase;
+#include "esp_attr.h"
+
+RTC_DATA_ATTR static FlightPhase s_persisted_phase = FlightPhase::NOT_SET;
+
+FlightPhase s_current_flight_phase;
 
 namespace state {
+    // TODO: improve persistence
     void begin() {
-        s_current_flight_phase = 0;
+        if (s_persisted_phase != FlightPhase::NOT_SET) {
+            s_current_flight_phase = s_persisted_phase;
+            return;
+        }
+        s_current_flight_phase = FlightPhase::PRELAUNCH;
     }
 
-    std::uint8_t getFlightPhase() {
+    FlightPhase getFlightPhase() {
         return s_current_flight_phase;
     }
+    
+    void persistFlightPhase() {
+        s_persisted_phase = s_current_flight_phase;
+    }
 
-    void setFlightPhase(std::uint8_t new_flight_phase) {
+    void setFlightPhase(FlightPhase new_flight_phase) {
         s_current_flight_phase = new_flight_phase;
     }
 }

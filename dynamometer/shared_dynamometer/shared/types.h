@@ -5,11 +5,12 @@
 #include <cstdint>
 
 enum class FlightPhase : std::uint8_t {
-    PRE_LAUNCH,
+    PRELAUNCH,
     ARMED,
     LAUNCHED,
     DESCENT,
-    LANDED
+    LANDED,
+    NOT_SET = 0xFF
 };
 
 typedef struct __attribute__((packed)) {
@@ -42,7 +43,7 @@ typedef struct __attribute__((packed)) {
    float main_battery_level;
    // Tail metadata
    std::uint16_t is_valid_reading_mask;
-   std::uint8_t flight_phase;
+   FlightPhase flight_phase;
    std::uint16_t crc;
 } full_telemetry_frame_t;
 

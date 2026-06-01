@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include "config.h"
+#include "core/state.h"
 #include "core/telemetry.h"
 
 namespace scheduler {
@@ -36,6 +37,7 @@ namespace scheduler {
             telemetry::assembleFullFrame();
             // TODO: write full frame to flash
             // TODO: transmit full frame to ground station
+            state::persistFlightPhase();
         }
     }
 }
