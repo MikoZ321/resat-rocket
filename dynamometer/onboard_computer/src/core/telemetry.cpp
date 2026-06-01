@@ -2,11 +2,13 @@
 
 #include <Arduino.h>
 
+#include "sensors/main_imu.h"
 #include "shared/crc.h"
 #include "state.h"
 
 static full_telemetry_frame_t s_full_frame;
 static mini_telemetry_frame_t s_mini_frame;
+
 static std::uint16_t s_current_frame_index = 0;
 
 namespace telemetry {
@@ -20,6 +22,7 @@ namespace telemetry {
         s_full_frame.timestamp_ms = millis();
 
         // TODO: Fill Tier A sensor readings
+        main_imu::fill(s_full_frame.acceleration_main, s_full_frame.angular_velocity);
         // TODO: Fill Tier B sensor readings
         // TODO: Fill Tier C sensor readings
 
@@ -38,6 +41,7 @@ namespace telemetry {
         s_mini_frame.timestamp_ms = millis();
 
         // TODO: Fill Tier A sensor readings
+        main_imu::fill(s_mini_frame.acceleration_main, s_mini_frame.angular_velocity);
 
         // TODO: Fill is_valid_reading_mask
         s_mini_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_mini_frame), sizeof(s_mini_frame) - sizeof(s_mini_frame.crc));

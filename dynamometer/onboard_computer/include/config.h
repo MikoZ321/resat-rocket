@@ -7,4 +7,11 @@
 #define TICK_SLOW_DIVISOR 2 // The ratio of the frequency of the fast tick to that of the slow tick
 #define TICK_HOUSE_DIVISOR 10 // The ratio of the frequency of the fast tick to that of the house tick
 
+#define I2C_SDA_PIN 8
+#define I2C_SCL_PIN 9
+#define I2C_FREQUENCY_HZ 400000
+#define I2C_TIMEOUT_MS 3
+
+#define LSM6DSOX_I2C_ADDRESS 106U // May actually be 107 if SDO pin is high
+
 #endif
