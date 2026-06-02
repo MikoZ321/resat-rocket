@@ -12,6 +12,7 @@
 #define I2C_FREQUENCY_HZ 400000
 #define I2C_TIMEOUT_MS 3
 
-#define LSM6DSOX_I2C_ADDRESS 106U // May actually be 107 if SDO pin is high
+#define LSM6DSOX_I2C_ADDRESS 0x6A // May actually be 107 if SDO pin is high
+#define H3LIS331_I2C_ADDRESS 0x18 // May actually be 0x19 if SA0 pin is high
 
 #endif

@@ -4,7 +4,7 @@
 
 #include "config.h"
 
-Adafruit_LSM6DSOX lsm6dsox;
+Adafruit_LSM6DSOX lsm6dsox = Adafruit_LSM6DSOX();
 
 static float s_acceleration[3] = {};
 static float s_angular_velocity[3] = {};

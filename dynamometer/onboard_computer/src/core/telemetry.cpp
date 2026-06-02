@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
 #include "shared/crc.h"
 #include "state.h"
@@ -23,6 +24,7 @@ namespace telemetry {
 
         // TODO: Fill Tier A sensor readings
         main_imu::fill(s_full_frame.acceleration_main, s_full_frame.angular_velocity);
+        high_g_accelerometer::fill(s_full_frame.acceleration_high_g);
         // TODO: Fill Tier B sensor readings
         // TODO: Fill Tier C sensor readings
 
@@ -42,7 +44,7 @@ namespace telemetry {
 
         // TODO: Fill Tier A sensor readings
         main_imu::fill(s_mini_frame.acceleration_main, s_mini_frame.angular_velocity);
-
+        high_g_accelerometer::fill(s_mini_frame.acceleration_high_g);
         // TODO: Fill is_valid_reading_mask
         s_mini_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_mini_frame), sizeof(s_mini_frame) - sizeof(s_mini_frame.crc));
     }
