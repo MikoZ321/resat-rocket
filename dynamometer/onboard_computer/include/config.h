@@ -14,5 +14,6 @@
 
 #define LSM6DSOX_I2C_ADDRESS 0x6A // May actually be 107 if SDO pin is high
 #define H3LIS331_I2C_ADDRESS 0x18 // May actually be 0x19 if SA0 pin is high
+#define BMP581_I2C_ADDRESS 0x46 // May actually be 0x47 depending on the state of the SDO pin
 
 #endif

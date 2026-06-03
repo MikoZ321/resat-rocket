@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
 #include "shared/crc.h"
@@ -25,6 +26,12 @@ namespace telemetry {
         // TODO: Fill Tier A sensor readings
         main_imu::fill(s_full_frame.acceleration_main, s_full_frame.angular_velocity);
         high_g_accelerometer::fill(s_full_frame.acceleration_high_g);
+        // Temp values used to prevent float misalignament 
+        float temp_pressure_pa, temp_temperature_c;
+        atmospheric_sensor::fill(temp_pressure_pa, temp_temperature_c);
+        s_full_frame.air_pressure = temp_pressure_pa;
+        s_full_frame.air_temperature = temp_temperature_c;
+
         // TODO: Fill Tier B sensor readings
         // TODO: Fill Tier C sensor readings
 
@@ -45,6 +52,12 @@ namespace telemetry {
         // TODO: Fill Tier A sensor readings
         main_imu::fill(s_mini_frame.acceleration_main, s_mini_frame.angular_velocity);
         high_g_accelerometer::fill(s_mini_frame.acceleration_high_g);
+        // Temp values used to prevent float misalignament 
+        float temp_pressure_pa, temp_temperature_c;
+        atmospheric_sensor::fill(temp_pressure_pa, temp_temperature_c);
+        s_mini_frame.air_pressure = temp_pressure_pa;
+        s_mini_frame.air_temperature = temp_temperature_c;
+
         // TODO: Fill is_valid_reading_mask
         s_mini_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_mini_frame), sizeof(s_mini_frame) - sizeof(s_mini_frame.crc));
     }

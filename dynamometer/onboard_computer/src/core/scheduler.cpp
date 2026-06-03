@@ -6,6 +6,7 @@
 #include "config.h"
 #include "core/state.h"
 #include "core/telemetry.h"
+#include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
 
@@ -20,6 +21,7 @@ namespace scheduler {
         // Initialize Tier A sensors
         main_imu::begin();
         high_g_accelerometer::begin();
+        atmospheric_sensor::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -31,6 +33,7 @@ namespace scheduler {
         // Poll Tier A sensors
         main_imu::readSensorData();
         high_g_accelerometer::readSensorData();
+        atmospheric_sensor::readSensorData();
 
         bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
         if (is_slow_tick) {
