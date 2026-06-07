@@ -5,6 +5,7 @@
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
+#include "sensors/oxidizer_loadcell.h"
 #include "sensors/thrust_loadcell.h"
 #include "shared/crc.h"
 #include "state.h"
@@ -38,6 +39,10 @@ namespace telemetry {
         s_full_frame.engine_thrust = temp_engine_thrust;
 
         // TODO: Fill Tier B sensor readings
+        float temp_oxidizer_weight;
+        oxidizer_loadcell::fill(temp_oxidizer_weight);
+        s_full_frame.oxidizer_weight = temp_oxidizer_weight;
+
         // TODO: Fill Tier C sensor readings
 
         // TODO: Fill is_valid_reading_mask
