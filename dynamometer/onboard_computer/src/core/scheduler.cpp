@@ -9,6 +9,7 @@
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
+#include "sensors/thrust_loadcell.h"
 
 namespace scheduler {
     void begin() {
@@ -22,18 +23,15 @@ namespace scheduler {
         main_imu::begin();
         high_g_accelerometer::begin();
         atmospheric_sensor::begin();
+        thrust_loadcell::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
-        Serial.print("Current tick: ");
-        Serial.print(tick_number);
-        // Stand-in for actual tier A sensor polling
-        Serial.print(" Tier A");
-        // TODO: implement bit mask
         // Poll Tier A sensors
         main_imu::readSensorData();
         high_g_accelerometer::readSensorData();
         atmospheric_sensor::readSensorData();
+        thrust_loadcell::readSensorData();
 
         bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
         if (is_slow_tick) {

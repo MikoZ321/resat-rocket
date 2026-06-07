@@ -5,6 +5,7 @@
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
+#include "sensors/thrust_loadcell.h"
 #include "shared/crc.h"
 #include "state.h"
 
@@ -23,7 +24,7 @@ namespace telemetry {
 
         s_full_frame.timestamp_ms = millis();
 
-        // TODO: Fill Tier A sensor readings
+        // Fill Tier A sensor readings
         main_imu::fill(s_full_frame.acceleration_main, s_full_frame.angular_velocity);
         high_g_accelerometer::fill(s_full_frame.acceleration_high_g);
         // Temp values used to prevent float misalignament 
@@ -31,6 +32,10 @@ namespace telemetry {
         atmospheric_sensor::fill(temp_pressure_pa, temp_temperature_c);
         s_full_frame.air_pressure = temp_pressure_pa;
         s_full_frame.air_temperature = temp_temperature_c;
+        // TODO: altitude calculation
+        float temp_engine_thrust;
+        thrust_loadcell::fill(temp_engine_thrust);
+        s_full_frame.engine_thrust = temp_engine_thrust;
 
         // TODO: Fill Tier B sensor readings
         // TODO: Fill Tier C sensor readings
@@ -49,7 +54,6 @@ namespace telemetry {
 
         s_mini_frame.timestamp_ms = millis();
 
-        // TODO: Fill Tier A sensor readings
         main_imu::fill(s_mini_frame.acceleration_main, s_mini_frame.angular_velocity);
         high_g_accelerometer::fill(s_mini_frame.acceleration_high_g);
         // Temp values used to prevent float misalignament 
@@ -57,6 +61,10 @@ namespace telemetry {
         atmospheric_sensor::fill(temp_pressure_pa, temp_temperature_c);
         s_mini_frame.air_pressure = temp_pressure_pa;
         s_mini_frame.air_temperature = temp_temperature_c;
+        // TODO: altitude calculation
+        float temp_engine_thrust;
+        thrust_loadcell::fill(temp_engine_thrust);
+        s_mini_frame.engine_thrust = temp_engine_thrust;
 
         // TODO: Fill is_valid_reading_mask
         s_mini_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_mini_frame), sizeof(s_mini_frame) - sizeof(s_mini_frame.crc));
