@@ -12,6 +12,7 @@
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
 #include "sensors/oxidizer_loadcell.h"
+#include "sensors/thermocouples.h"
 #include "sensors/thrust_loadcell.h"
 
 namespace scheduler {
@@ -34,6 +35,7 @@ namespace scheduler {
         // Initialize Tier B sensors
         oxidizer_loadcell::begin();
         analog_sensors::begin();
+        thermocouples::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -45,10 +47,10 @@ namespace scheduler {
 
         bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
         if (is_slow_tick) {
-            // Stand-in for actual tier B sensor polling
-            Serial.print(", B");
+            // Poll Tier B sensors
             oxidizer_loadcell::readSensorData();
             analog_sensors::readSensorData();
+            thermocouples::readSensorData();
         }
         
         bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);

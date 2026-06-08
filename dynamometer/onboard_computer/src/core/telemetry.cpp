@@ -7,6 +7,7 @@
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
 #include "sensors/oxidizer_loadcell.h"
+#include "sensors/thermocouples.h"
 #include "sensors/thrust_loadcell.h"
 #include "shared/crc.h"
 #include "state.h"
@@ -49,6 +50,10 @@ namespace telemetry {
         s_full_frame.oxidizer_pressure = temp_oxidizer_pressure;
         s_full_frame.pyro_battery_voltage = temp_pyro_battery_voltage;
         s_full_frame.main_battery_voltage = temp_main_battery_voltage;
+        float temp_engine_temperature_top, temp_engine_temperature_bottom;
+        thermocouples::fill(temp_engine_temperature_top, temp_engine_temperature_bottom);
+        s_full_frame.engine_temperature_top = temp_engine_temperature_top;
+        s_full_frame.engine_temperature_bottom = temp_engine_temperature_bottom;
 
         // TODO: Fill Tier C sensor readings
 

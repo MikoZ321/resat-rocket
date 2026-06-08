@@ -46,4 +46,7 @@
 #define PYRO_BATTERY_VOLTAGE_SCALE 0.01 // Placeholder value, to be determined experimentally
 #define PYRO_BATTERY_VOLTAGE_OFFSET 0.0 // Placeholder value, to be determined experimentally
 
+#define THERMOCOUPLE_TOP_CS_PIN 39
+#define THERMOCOUPLE_BOTTOM_CS_PIN 40
+
 #endif

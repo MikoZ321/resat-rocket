@@ -33,7 +33,7 @@ typedef struct __attribute__((packed)) {
    float pyro_battery_voltage;
    float main_battery_voltage;
    float engine_temperature_top;
-   float engine_temeprature_bottom;
+   float engine_temperature_bottom;
    std::uint8_t piston_position;
    // Tier C sensors
    float gps_latitude;
