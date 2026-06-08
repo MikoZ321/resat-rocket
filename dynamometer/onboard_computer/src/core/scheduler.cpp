@@ -1,6 +1,7 @@
 #include "scheduler.h"
 
 #include <Arduino.h>
+#include <SPI.h>
 #include <Wire.h>
 
 #include "config.h"
@@ -19,6 +20,10 @@ namespace scheduler {
         Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY_HZ);
         Wire.setTimeOut(I2C_TIMEOUT_MS);
         Serial.println("[INIT] OK: I2C");
+
+        // Initialize SPI
+        SPI.begin(SPI_SCLK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);
+        Serial.println("[INIT] OK: SPI");
 
         // TODO: handle init failures
         // Initialize Tier A sensors
