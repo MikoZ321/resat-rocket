@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
@@ -24,7 +25,7 @@ namespace telemetry {
         s_current_frame_index++;
 
         s_full_frame.timestamp_ms = millis();
-
+        
         // Fill Tier A sensor readings
         main_imu::fill(s_full_frame.acceleration_main, s_full_frame.angular_velocity);
         high_g_accelerometer::fill(s_full_frame.acceleration_high_g);
@@ -42,6 +43,12 @@ namespace telemetry {
         float temp_oxidizer_weight;
         oxidizer_loadcell::fill(temp_oxidizer_weight);
         s_full_frame.oxidizer_weight = temp_oxidizer_weight;
+        float temp_fuel_pressure, temp_oxidizer_pressure, temp_pyro_battery_voltage, temp_main_battery_voltage;
+        analog_sensors::fill(temp_fuel_pressure, temp_oxidizer_pressure, temp_pyro_battery_voltage, temp_main_battery_voltage);
+        s_full_frame.fuel_pressure = temp_fuel_pressure;
+        s_full_frame.oxidizer_pressure = temp_oxidizer_pressure;
+        s_full_frame.pyro_battery_voltage = temp_pyro_battery_voltage;
+        s_full_frame.main_battery_voltage = temp_main_battery_voltage;
 
         // TODO: Fill Tier C sensor readings
 

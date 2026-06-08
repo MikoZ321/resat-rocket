@@ -6,6 +6,7 @@
 #include "config.h"
 #include "core/state.h"
 #include "core/telemetry.h"
+#include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
 #include "sensors/main_imu.h"
@@ -27,6 +28,7 @@ namespace scheduler {
         thrust_loadcell::begin();
         // Initialize Tier B sensors
         oxidizer_loadcell::begin();
+        analog_sensors::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -41,6 +43,7 @@ namespace scheduler {
             // Stand-in for actual tier B sensor polling
             Serial.print(", B");
             oxidizer_loadcell::readSensorData();
+            analog_sensors::readSensorData();
         }
         
         bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);

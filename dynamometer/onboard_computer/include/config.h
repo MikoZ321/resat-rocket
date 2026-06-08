@@ -26,4 +26,20 @@
 #define OXIDIZER_LOADCELL_SCALE 1000.0 // Placeholder value, to be determined experimentally
 #define OXIDIZER_LOADCELL_OFFSET 0.0 // Placeholder value, to be determined
 
+#define MAIN_ADS1115_I2C_ADDRESS 0x48 // May actually be 0x49, 0x4A, or 0x4B depending on the state of the address pins
+
+#define MAIN_BATTERY_VOLTAGE_ADC_CHANNEL 0
+#define FUEL_PRESSURE_ADC_CHANNEL 1
+#define OXIDIZER_PRESSURE_ADC_CHANNEL 2
+#define PYRO_BATTERY_VOLTAGE_ADC_CHANNEL 3
+
+#define MAIN_BATTERY_VOLTAGE_SCALE 0.01 // Placeholder value, to be determined experimentally
+#define MAIN_BATTERY_VOLTAGE_OFFSET 0.0 // Placeholder value, to be determined experimentally
+#define FUEL_PRESSURE_SCALE 1.0 // Placeholder value, to be determined experimentally
+#define FUEL_PRESSURE_OFFSET 0.0 // Placeholder value, to be determined experimentally
+#define OXIDIZER_PRESSURE_SCALE 1.0 // Placeholder value, to be determined experimentally
+#define OXIDIZER_PRESSURE_OFFSET 0.0 // Placeholder value, to be determined
+#define PYRO_BATTERY_VOLTAGE_SCALE 0.01 // Placeholder value, to be determined experimentally
+#define PYRO_BATTERY_VOLTAGE_OFFSET 0.0 // Placeholder value, to be determined experimentally
+
 #endif
