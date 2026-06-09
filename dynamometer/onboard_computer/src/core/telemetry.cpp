@@ -5,6 +5,7 @@
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
+#include "sensors/main_gps.h"
 #include "sensors/main_imu.h"
 #include "sensors/oxidizer_loadcell.h"
 #include "sensors/thermocouples.h"
@@ -40,7 +41,7 @@ namespace telemetry {
         thrust_loadcell::fill(temp_engine_thrust);
         s_full_frame.engine_thrust = temp_engine_thrust;
 
-        // TODO: Fill Tier B sensor readings
+        // Fill Tier B sensor readings
         float temp_oxidizer_weight;
         oxidizer_loadcell::fill(temp_oxidizer_weight);
         s_full_frame.oxidizer_weight = temp_oxidizer_weight;
@@ -54,8 +55,16 @@ namespace telemetry {
         thermocouples::fill(temp_engine_temperature_top, temp_engine_temperature_bottom);
         s_full_frame.engine_temperature_top = temp_engine_temperature_top;
         s_full_frame.engine_temperature_bottom = temp_engine_temperature_bottom;
+        // TODO: fill piston position
 
         // TODO: Fill Tier C sensor readings
+        float temp_gps_latitude, temp_gps_longitude, temp_gps_altitude;
+        std::uint8_t temp_gps_sattelite_count;
+        main_gps::fill(temp_gps_latitude, temp_gps_longitude, temp_gps_altitude, temp_gps_sattelite_count);
+        s_full_frame.gps_latitude = temp_gps_latitude;
+        s_full_frame.gps_longitude = temp_gps_longitude;
+        s_full_frame.gps_altitude = temp_gps_altitude;
+        s_full_frame.gps_sattelite_count = temp_gps_sattelite_count;
 
         // TODO: Fill is_valid_reading_mask
         s_full_frame.flight_phase = state::getFlightPhase();

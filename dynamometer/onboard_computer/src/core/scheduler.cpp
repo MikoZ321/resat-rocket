@@ -10,6 +10,7 @@
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
+#include "sensors/main_gps.h"
 #include "sensors/main_imu.h"
 #include "sensors/oxidizer_loadcell.h"
 #include "sensors/thermocouples.h"
@@ -36,6 +37,8 @@ namespace scheduler {
         oxidizer_loadcell::begin();
         analog_sensors::begin();
         thermocouples::begin();
+        // Initialize Tier C sensors
+        main_gps::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -51,14 +54,14 @@ namespace scheduler {
             oxidizer_loadcell::readSensorData();
             analog_sensors::readSensorData();
             thermocouples::readSensorData();
+            // TODO: gauge piston position
         }
         
         bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);
         if (is_house_tick) {
-            // Stand-in for actual tier C sensor polling
-            Serial.print(", C");
+            // Poll Tier C sensors
+            main_gps::readSensorData();
         }
-        Serial.println("");
 
         telemetry::assembleMiniFrame();
         // TODO: write mini frame to flash
