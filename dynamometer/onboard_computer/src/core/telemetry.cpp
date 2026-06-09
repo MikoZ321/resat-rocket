@@ -20,8 +20,8 @@ static std::uint16_t s_current_frame_index = 0;
 
 namespace telemetry {
     void assembleFullFrame() {
-        s_full_frame.sync_bytes[0] = 0xAA;
-        s_full_frame.sync_bytes[1] = 0x55;
+        s_full_frame.sync_bytes[0] = FULL_FRAME_SYNC_BYTE_0;
+        s_full_frame.sync_bytes[1] = FULL_FRAME_SYNC_BYTE_1;
 
         s_full_frame.telemetry_frame_index = s_current_frame_index;
         s_current_frame_index++;
@@ -57,7 +57,7 @@ namespace telemetry {
         s_full_frame.engine_temperature_bottom = temp_engine_temperature_bottom;
         // TODO: fill piston position
 
-        // TODO: Fill Tier C sensor readings
+        // Fill Tier C sensor readings
         float temp_gps_latitude, temp_gps_longitude, temp_gps_altitude;
         std::uint8_t temp_gps_sattelite_count;
         main_gps::fill(temp_gps_latitude, temp_gps_longitude, temp_gps_altitude, temp_gps_sattelite_count);
@@ -65,6 +65,7 @@ namespace telemetry {
         s_full_frame.gps_longitude = temp_gps_longitude;
         s_full_frame.gps_altitude = temp_gps_altitude;
         s_full_frame.gps_sattelite_count = temp_gps_sattelite_count;
+        // TODO: fill battery level
 
         // TODO: Fill is_valid_reading_mask
         s_full_frame.flight_phase = state::getFlightPhase();
@@ -72,8 +73,8 @@ namespace telemetry {
     }
 
     void assembleMiniFrame() {
-        s_mini_frame.sync_bytes[0] = 0xBB;
-        s_mini_frame.sync_bytes[1] = 0x66;
+        s_mini_frame.sync_bytes[0] = MINI_FRAME_SYNC_BYTE_0;
+        s_mini_frame.sync_bytes[1] = MINI_FRAME_SYNC_BYTE_1;
 
         s_mini_frame.telemetry_frame_index = s_current_frame_index;
         s_current_frame_index++;

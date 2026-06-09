@@ -2,6 +2,12 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#define FULL_FRAME_SYNC_BYTE_0 0xAA
+#define FULL_FRAME_SYNC_BYTE_1 0x55
+
+#define MINI_FRAME_SYNC_BYTE_0 0xBB
+#define MINI_FRAME_SYNC_BYTE_1 0x66
+
 #include <cstdint>
 
 enum class FlightPhase : std::uint8_t {
@@ -15,7 +21,7 @@ enum class FlightPhase : std::uint8_t {
 
 typedef struct __attribute__((packed)) {
    // Header
-   std::uint8_t sync_bytes[2]; // 0xAA 0x55
+   std::uint8_t sync_bytes[2];
    std::uint16_t telemetry_frame_index;
    std::uint32_t timestamp_ms; 
    // Tier A sensors
@@ -49,7 +55,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
    // Header
-   std::uint8_t sync_bytes[2]; // 0xBB 0x66
+   std::uint8_t sync_bytes[2]; 
    std::uint16_t telemetry_frame_index;
    std::uint32_t timestamp_ms; 
    // Tier A sensors

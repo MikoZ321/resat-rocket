@@ -33,35 +33,43 @@ namespace scheduler {
         high_g_accelerometer::begin();
         atmospheric_sensor::begin();
         thrust_loadcell::begin();
+
         // Initialize Tier B sensors
         oxidizer_loadcell::begin();
         analog_sensors::begin();
         thermocouples::begin();
+        // TODO: init piston position sensor
+
         // Initialize Tier C sensors
         main_gps::begin();
+        // TODO: init battery level sensor
     }
 
     void runTick(std::uint32_t tick_number) {
+        bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
+        bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);
+
         // Poll Tier A sensors
         main_imu::readSensorData();
         high_g_accelerometer::readSensorData();
         atmospheric_sensor::readSensorData();
         thrust_loadcell::readSensorData();
 
-        bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
+        // Poll Tier B sensors
         if (is_slow_tick) {
-            // Poll Tier B sensors
             oxidizer_loadcell::readSensorData();
             analog_sensors::readSensorData();
             thermocouples::readSensorData();
             // TODO: gauge piston position
         }
         
-        bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);
+        // Poll Tier C sensors
         if (is_house_tick) {
-            // Poll Tier C sensors
             main_gps::readSensorData();
+            // TODO: read battery level
         }
+
+        // TODO: calculate fusion altitude
 
         telemetry::assembleMiniFrame();
         // TODO: write mini frame to flash
