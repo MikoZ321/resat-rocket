@@ -2,12 +2,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define FULL_FRAME_SYNC_BYTE_0 0xAA
-#define FULL_FRAME_SYNC_BYTE_1 0x55
-
-#define MINI_FRAME_SYNC_BYTE_0 0xBB
-#define MINI_FRAME_SYNC_BYTE_1 0x66
-
 #include <cstdint>
 
 enum class FlightPhase : std::uint8_t {

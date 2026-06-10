@@ -10,6 +10,7 @@
 #include "sensors/oxidizer_loadcell.h"
 #include "sensors/thermocouples.h"
 #include "sensors/thrust_loadcell.h"
+#include "shared/communication_protocol.h"
 #include "shared/crc.h"
 #include "state.h"
 

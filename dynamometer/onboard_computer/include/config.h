@@ -60,4 +60,7 @@
 #define SD_CARD_CS_PIN 16
 #define SD_CARD_BUFFER_SIZE 512
 
+#define RADIO_RX_PIN 17
+#define RADIO_TX_PIN 18
+
 #endif

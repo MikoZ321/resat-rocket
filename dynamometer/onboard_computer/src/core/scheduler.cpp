@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
+#include "communication/radio.h"
 #include "config.h"
 #include "core/state.h"
 #include "core/telemetry.h"
@@ -20,6 +21,9 @@
 
 namespace scheduler {
     void begin() {
+        // Initialize radio
+        radio::begin();
+
         // Initialize I2C
         Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY_HZ);
         Wire.setTimeOut(I2C_TIMEOUT_MS);
@@ -82,10 +86,12 @@ namespace scheduler {
 
         if (is_slow_tick) {
             telemetry::assembleFullFrame();
+            full_telemetry_frame_t full_frame = telemetry::getFullFrame();
 
-            spi_flash::writeFullTelemetryFrame(telemetry::getFullFrame());
-            sd_card::writeFullTelemetryFrame(telemetry::getFullFrame());
-            // TODO: transmit full frame to ground station
+            spi_flash::writeFullTelemetryFrame(full_frame);
+            sd_card::writeFullTelemetryFrame(full_frame);
+            
+            radio::enqueueFullTelemetryFrame(full_frame);
 
             spi_flash::periodicMaintenance(tick_number / TICK_SLOW_DIVISOR);
             state::persistFlightPhase();
