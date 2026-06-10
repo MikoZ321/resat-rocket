@@ -7,6 +7,7 @@
 #include "config.h"
 #include "core/state.h"
 #include "core/telemetry.h"
+#include "memory/sd_card.h"
 #include "memory/spi_flash.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
@@ -47,6 +48,7 @@ namespace scheduler {
 
         // Initialize memory
         spi_flash::begin();
+        sd_card::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -80,7 +82,9 @@ namespace scheduler {
 
         if (is_slow_tick) {
             telemetry::assembleFullFrame();
+
             spi_flash::writeFullTelemetryFrame(telemetry::getFullFrame());
+            sd_card::writeFullTelemetryFrame(telemetry::getFullFrame());
             // TODO: transmit full frame to ground station
 
             spi_flash::periodicMaintenance(tick_number / TICK_SLOW_DIVISOR);
