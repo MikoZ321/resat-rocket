@@ -13,13 +13,13 @@ static std::uint8_t s_sattelite_count;
 namespace main_gps {
     bool begin() {
         // TODO: add error checking
-        Serial1.begin(MAIN_GPS_BAUD_RATE, SERIAL_8N1, MAIN_GPS_RX_PIN, MAIN_GPS_TX_PIN);
+        Serial2.begin(MAIN_GPS_BAUD_RATE, SERIAL_8N1, MAIN_GPS_RX_PIN, MAIN_GPS_TX_PIN);
 
         return true;
     }
 
     bool readSensorData() {
-        while (Serial1.available()) tiny_gps.encode(Serial1.read());
+        while (Serial2.available()) tiny_gps.encode(Serial2.read());
 
         bool is_complete_read = true;
 
