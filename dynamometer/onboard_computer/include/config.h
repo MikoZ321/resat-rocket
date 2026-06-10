@@ -57,7 +57,7 @@
 #define WRITE_POINTER_FLUSH_TICKS 10
 #define FLASH_MIRROR_TICKS 50
 
-#define SD_CARD_CS_PIN 16
+#define SD_CARD_CS_PIN 10
 #define SD_CARD_BUFFER_SIZE 512
 
 #define RADIO_RX_PIN 17
@@ -65,5 +65,7 @@
 
 #define LED_PIN 48
 #define LED_COUNT 2
+
+#define CAMERA_TRIGGER_PIN 42
 
 #endif

@@ -3,8 +3,7 @@
 #include "core/scheduler.h"
 #include "core/state.h"
 #include "core/ticker.h"
-#include "outputs/leds.h"
-
+#include "outputs/camera.h"
 
 void setup() {
   Serial.begin(115200);
@@ -17,5 +16,5 @@ void setup() {
 void loop() {
   if (!ticker::consume()) return;
 
-  leds::lightShow();
+  camera::trigger();
 }
