@@ -16,9 +16,9 @@
 #define SPI_MOSI_PIN 11
 #define SPI_SCLK_PIN 13
 
-#define LSM6DSOX_I2C_ADDRESS 0x6A // May actually be 107 if SDO pin is high
-#define H3LIS331_I2C_ADDRESS 0x18 // May actually be 0x19 if SA0 pin is high
-#define BMP581_I2C_ADDRESS 0x46 // May actually be 0x47 depending on the state of the SDO pin
+#define LSM6DSOX_I2C_ADDRESS 0x6B
+#define H3LIS331_I2C_ADDRESS 0x18
+#define BMP581_I2C_ADDRESS 0x47
 
 #define ADS1232_DOUT_PIN 21
 #define ADS1232_SCLK_PIN 15
