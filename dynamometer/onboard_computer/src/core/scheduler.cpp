@@ -7,6 +7,7 @@
 #include "config.h"
 #include "core/state.h"
 #include "core/telemetry.h"
+#include "memory/spi_flash.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
@@ -43,6 +44,9 @@ namespace scheduler {
         // Initialize Tier C sensors
         main_gps::begin();
         // TODO: init battery level sensor
+
+        // Initialize memory
+        spi_flash::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -72,12 +76,14 @@ namespace scheduler {
         // TODO: calculate fusion altitude
 
         telemetry::assembleMiniFrame();
-        // TODO: write mini frame to flash
+        spi_flash::writeMiniTelemetryFrame(telemetry::getMiniFrame());
 
         if (is_slow_tick) {
             telemetry::assembleFullFrame();
-            // TODO: write full frame to flash
+            spi_flash::writeFullTelemetryFrame(telemetry::getFullFrame());
             // TODO: transmit full frame to ground station
+
+            spi_flash::periodicMaintenance(tick_number / TICK_SLOW_DIVISOR);
             state::persistFlightPhase();
         }
     }
