@@ -49,7 +49,6 @@ static String sendAT(const char* cmd) {
     return resp;
 }
 
-
 namespace radio {
     bool begin() {
         Serial1.begin(RADIO_BAUD_RATE, SERIAL_8N1, RADIO_RX_PIN, RADIO_TX_PIN);
