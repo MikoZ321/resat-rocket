@@ -10,6 +10,7 @@
 #include "core/telemetry.h"
 #include "memory/sd_card.h"
 #include "memory/spi_flash.h"
+#include "outputs/leds.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
@@ -53,6 +54,9 @@ namespace scheduler {
         // Initialize memory
         spi_flash::begin();
         sd_card::begin();
+
+        // Initialize outputs
+        leds::begin();
     }
 
     void runTick(std::uint32_t tick_number) {

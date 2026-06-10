@@ -63,4 +63,7 @@
 #define RADIO_RX_PIN 17
 #define RADIO_TX_PIN 18
 
+#define LED_PIN 48
+#define LED_COUNT 2
+
 #endif
