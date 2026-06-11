@@ -17,14 +17,13 @@ namespace analog_sensors {
             return false;
         }
 
+        adc.setGain(ADS1X15_GAIN_6144MV);
+
         return true;
     }
 
     bool readSensorData() {
         // TODO: potentially check adc.getError() returns if not too time consuming
-        if (!adc.isReady()) {
-            return false;
-        }
 
         s_fuel_pressure = adc.toVoltage(adc.readADC(FUEL_PRESSURE_ADC_CHANNEL)) * FUEL_PRESSURE_SCALE + FUEL_PRESSURE_OFFSET;
         s_oxidizer_pressure = adc.toVoltage(adc.readADC(OXIDIZER_PRESSURE_ADC_CHANNEL)) * OXIDIZER_PRESSURE_SCALE + OXIDIZER_PRESSURE_OFFSET;

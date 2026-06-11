@@ -30,10 +30,12 @@ void loop() {
 
   analog_sensors::readSensorData();
   analog_sensors::fill(fuel_pressure, oxidizer_pressure, pyro_battery_voltage, main_battery_voltage);
-  Serial.println(oxidizer_pressure);
+  Serial.print(main_battery_voltage);
+  Serial.print(", ");
+  Serial.println(pyro_battery_voltage);
 
-  if ((int)ticker::getTickCount == 40) {
+  /*if (ticker::getTickCount() % 40 == 0) {
     Serial.println("Igniting");
     multiplexer::igniteEngine();
-  }
+  }*/
 }
