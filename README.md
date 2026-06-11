@@ -89,19 +89,36 @@ The onboard computer relies on a three-layered tick structure:
 
 The master tick is implemented using the `ticker` namespace, whose implementation is based on the built-in `esp_timer`. 
 
-Each data packet contains the following sensor readings, all saved as C++ floats and seperated by a semicolon (;):
-* time
+Each data packet contains the following sensor readings, floats printed to 4 decimal places (except for gps coordinates) and integers printed in decimal form (including the bit mask) and seperated by a semicolon (;):
+* timestamp
+* frame index
+* 3-axis acceleration (main imu)
+* 3-axis angular velocity (main imu)
+* 3-axis acceleration (high-g accelerometer)
+* air pressure
+* air temperature
+* altitude (obtained from sensor fusion)
 * thrust
-* oxidizer pressure
+* oxidizer weight
 * fuel pressure
-* temperature top
-* temperature middle
-* temperature bottom
-* photoresistor
-* hall effect sensors (not implemented yet)
+* oxidizer pressure
+* pyro battery voltage
+* main battery voltage
+* engine temperature top
+* engine temperature bottom
+* piston position
+* latitude
+* longitude
+* altitude (gps)
+* gps sattelite count 
+* main battery level
+* is_valid_reading bit mask
+* current flight phase
 
 Additonally, at the ground station the following values will be attached, before being sent to the computer dashboard:
-* received signal strength indicator
+* received frame count
+* invalid frame count
+* missing frame count
 
 The data will be transfered between components as displayed in the diagram below.
 

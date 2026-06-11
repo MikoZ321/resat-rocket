@@ -8,6 +8,7 @@
 #include "shared/communication_protocol.h"
 #include "shared/crc.h"
 #include "shared/types.h"
+#include "usb_forward.h"
 
 static const std::uint32_t AT_GUARD_MS = 1100;  // 1 s + margin
 static const std::uint32_t AT_RESPONSE_MS = 500;
@@ -113,7 +114,7 @@ static bool tryFullFrame() {
     s_last_full_frame_index = full_frame.telemetry_frame_index;
     s_frames_received_count++;
 
-    // TODO: forward to usb
+    usb_forward::sendFullFrame(full_frame, s_frames_received_count, s_crc_fail_count, s_frame_index_gap_count);
     // TODO: save to sd
 
     rxConsume(sizeof(full_telemetry_frame_t));

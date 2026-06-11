@@ -2,9 +2,10 @@
 
 #include "config.h"
 #include "radio.h"
+#include "usb_forward.h"
 
 void setup() {
-  Serial.begin(SERIAL_MONITOR_BAUD_RATE);
+  usb_forward::begin();
   radio::begin();
 }
 
