@@ -18,6 +18,8 @@ namespace analog_sensors {
             return false;
         }
 
+        adc.setGain(ADS1X15_GAIN_6144MV);
+
         return true;
     }
 

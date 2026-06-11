@@ -6,9 +6,10 @@
 
 void setup() {
   Serial.begin(115200);
+
+  ticker::begin();
   scheduler::begin();
   state::begin();
-  ticker::begin();
 }
 
 void loop() {
