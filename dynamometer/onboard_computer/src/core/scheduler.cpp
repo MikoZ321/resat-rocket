@@ -13,6 +13,7 @@
 #include "outputs/buzzer.h"
 #include "outputs/camera.h"
 #include "outputs/leds.h"
+#include "outputs/multiplexer.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
@@ -61,6 +62,7 @@ namespace scheduler {
         leds::begin();
         camera::begin();
         buzzer::begin();
+        multiplexer::begin();
     }
 
     void runTick(std::uint32_t tick_number) {

@@ -1,21 +1,39 @@
 #include <Arduino.h>
+#include <Wire.h>
 
-#include "core/scheduler.h"
-#include "core/state.h"
+#include "config.h"
+//#include "core/scheduler.h"
+//#include "core/state.h"
 #include "core/ticker.h"
-#include "sensors/piston_position_sensor.h"
+#include "sensors/analog_sensors.h"
+#include "outputs/multiplexer.h"
 
 void setup() {
   Serial.begin(115200);
 
   ticker::begin();
-  scheduler::begin();
-  state::begin();
+  //scheduler::begin();
+  //state::begin();
+  // Initialize I2C
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY_HZ);
+  Wire.setTimeOut(I2C_TIMEOUT_MS);
+  Serial.println("[INIT] OK: I2C");
+
+  multiplexer::begin();
+  analog_sensors::begin();
 }
+
+static float main_battery_voltage, pyro_battery_voltage, fuel_pressure, oxidizer_pressure;
 
 void loop() {
   if (!ticker::consume()) return;
 
-  piston_position_sensor::readSensorData();
-  piston_position_sensor::dumpHallData();
+  analog_sensors::readSensorData();
+  analog_sensors::fill(fuel_pressure, oxidizer_pressure, pyro_battery_voltage, main_battery_voltage);
+  Serial.println(oxidizer_pressure);
+
+  if ((int)ticker::getTickCount == 40) {
+    Serial.println("Igniting");
+    multiplexer::igniteEngine();
+  }
 }

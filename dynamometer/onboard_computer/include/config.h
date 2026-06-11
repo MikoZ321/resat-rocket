@@ -3,7 +3,7 @@
 #define CONFIG_H
 
 #define TICK_FAST_HZ 50
-#define TICK_FAST_INTERVAL_MS 20
+#define TICK_FAST_INTERVAL_MS 200
 #define TICK_SLOW_DIVISOR 2 // The ratio of the frequency of the fast tick to that of the slow tick
 #define TICK_HOUSE_DIVISOR 10 // The ratio of the frequency of the fast tick to that of the house tick
 
@@ -73,5 +73,12 @@
 #define CAMERA_TRIGGER_PIN 42
 
 #define BUZZER_PIN 16
+
+#define MCP23017_I2C_ADDRESS 0x27
+#define IGNITER_MAIN_PIN 8
+#define IGNITER_DROGUE_PIN 9
+#define IGNITER_ENGINE_PIN 10
+#define SOLENOID_FUEL_PIN 0
+#define SOLENOID_OXIDIZER_PIN 1
 
 #endif
