@@ -9,5 +9,5 @@ void setup() {
 }
 
 void loop() {
-
+  radio::process();
 }

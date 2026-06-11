@@ -6,4 +6,6 @@
 #define RADIO_TX_PIN -1
 #define RADIO_RX_PIN -1
 
+#define RX_BUFFER_SIZE 512
+
 #endif
