@@ -3,6 +3,7 @@
 #include <ADS123X.h>
 
 #include "config.h"
+#include "core/state.h"
 
 ADS123X ads;
 
@@ -22,9 +23,11 @@ namespace thrust_loadcell {
     // TODO: Check if blocking is not a problem
     bool readSensorData() {
         if (ads.get_units(AIN1, s_engine_thrust) != NoERROR) {
+            state::clearValidMaskBit(THRUST_LOADCELL_VALID_MASK_BIT);
             return false;
         }
 
+        state::setValidMaskBit(THRUST_LOADCELL_VALID_MASK_BIT);
         return true; 
     }
 

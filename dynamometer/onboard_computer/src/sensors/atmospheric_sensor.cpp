@@ -3,6 +3,7 @@
 #include <SparkFun_BMP581_Arduino_Library.h>
 
 #include "config.h"
+#include "core/state.h"
 
 BMP581 bmp581 = BMP581();
 
@@ -26,11 +27,15 @@ namespace atmospheric_sensor {
 
     bool readSensorData() {
         bmp5_sensor_data data;
-        if (bmp581.getSensorData(&data) != BMP5_OK) return false;
+        if (bmp581.getSensorData(&data) != BMP5_OK) {
+            state::clearValidMaskBit(BMP581_VALID_MASK_BIT);
+            return false;
+        }
 
         s_pressure_pa = data.pressure;
         s_temperature_c = data.temperature;
 
+        state::setValidMaskBit(BMP581_VALID_MASK_BIT);
         return true;
     }
 

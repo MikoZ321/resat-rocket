@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "core/state.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
@@ -68,7 +69,7 @@ namespace telemetry {
         s_full_frame.gps_sattelite_count = temp_gps_sattelite_count;
         // TODO: fill battery level
 
-        // TODO: Fill is_valid_reading_mask
+        s_full_frame.is_valid_reading_mask = state::getValidMask();
         s_full_frame.flight_phase = state::getFlightPhase();
         s_full_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_full_frame), sizeof(s_full_frame) - sizeof(s_full_frame.crc));
     }
@@ -94,7 +95,7 @@ namespace telemetry {
         thrust_loadcell::fill(temp_engine_thrust);
         s_mini_frame.engine_thrust = temp_engine_thrust;
 
-        // TODO: Fill is_valid_reading_mask
+        s_mini_frame.is_valid_reading_mask = state::getValidMask();
         s_mini_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_mini_frame), sizeof(s_mini_frame) - sizeof(s_mini_frame.crc));
     }
 

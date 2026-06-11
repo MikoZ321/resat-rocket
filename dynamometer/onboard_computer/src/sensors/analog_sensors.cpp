@@ -3,6 +3,7 @@
 #include <ADS1X15.h>
 
 #include "config.h"
+#include "core/state.h"
 
 ADS1115 adc(MAIN_ADS1115_I2C_ADDRESS);
 
@@ -23,6 +24,10 @@ namespace analog_sensors {
     bool readSensorData() {
         // TODO: potentially check adc.getError() returns if not too time consuming
         if (!adc.isReady()) {
+            state::clearValidMaskBit(FUEL_PRESSURE_VALID_MASK_BIT);
+            state::clearValidMaskBit(OXIDIZER_PRESSURE_VALID_MASK_BIT);
+            state::clearValidMaskBit(MAIN_BATTERY_VOLTAGE_VALID_MASK_BIT);
+            state::clearValidMaskBit(PYRO_BATTERY_VOLTAGE_VALID_MASK_BIT);
             return false;
         }
 
@@ -30,6 +35,11 @@ namespace analog_sensors {
         s_oxidizer_pressure = adc.toVoltage(adc.readADC(OXIDIZER_PRESSURE_ADC_CHANNEL)) * OXIDIZER_PRESSURE_SCALE + OXIDIZER_PRESSURE_OFFSET;
         s_pyro_battery_voltage = adc.toVoltage(adc.readADC(PYRO_BATTERY_VOLTAGE_ADC_CHANNEL)) * PYRO_BATTERY_VOLTAGE_SCALE + PYRO_BATTERY_VOLTAGE_OFFSET;
         s_main_battery_voltage = adc.toVoltage(adc.readADC(MAIN_BATTERY_VOLTAGE_ADC_CHANNEL)) * MAIN_BATTERY_VOLTAGE_SCALE + MAIN_BATTERY_VOLTAGE_OFFSET;
+
+        state::setValidMaskBit(FUEL_PRESSURE_VALID_MASK_BIT);
+        state::setValidMaskBit(OXIDIZER_PRESSURE_VALID_MASK_BIT);
+        state::setValidMaskBit(MAIN_BATTERY_VOLTAGE_VALID_MASK_BIT);
+        state::setValidMaskBit(PYRO_BATTERY_VOLTAGE_VALID_MASK_BIT);
 
         return true;
     }

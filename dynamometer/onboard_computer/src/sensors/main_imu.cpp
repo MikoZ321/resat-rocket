@@ -3,6 +3,7 @@
 #include <Adafruit_LSM6DSOX.h>
 
 #include "config.h"
+#include "core/state.h"
 
 Adafruit_LSM6DSOX lsm6dsox = Adafruit_LSM6DSOX();
 
@@ -28,7 +29,10 @@ namespace main_imu {
         sensors_event_t accel;
         sensors_event_t gyro;
         sensors_event_t temp; // Value initalized and disregarded to prevent potential crashes from using nullptr
-        if (!lsm6dsox.getEvent(&accel, &gyro, &temp)) return false; 
+        if (!lsm6dsox.getEvent(&accel, &gyro, &temp)) {
+            state::clearValidMaskBit(LSM6DSOX_VALID_MASK_BIT);
+            return false; 
+        }
 
         s_acceleration[0] = accel.acceleration.x;
         s_acceleration[1] = accel.acceleration.y;
@@ -37,6 +41,8 @@ namespace main_imu {
         s_angular_velocity[0] = gyro.gyro.x;
         s_angular_velocity[1] = gyro.gyro.y;
         s_angular_velocity[2] = gyro.gyro.z;
+
+        state::setValidMaskBit(LSM6DSOX_VALID_MASK_BIT);
         return true;
     }
 

@@ -4,6 +4,7 @@
 #include <TinyGPSPlus.h>
 
 #include "config.h"
+#include "core/state.h"
 
 TinyGPSPlus tiny_gps;
 
@@ -26,14 +27,30 @@ namespace main_gps {
         if (tiny_gps.location.isValid()) {
             s_latitude = tiny_gps.location.lat();
             s_longitude = tiny_gps.location.lng();
+            state::setValidMaskBit(MAIN_GPS_LOCATION_VALID_MASK_BIT);
         }
-        else is_complete_read = false;
+        else {
+            is_complete_read = false;
+            state::clearValidMaskBit(MAIN_GPS_LOCATION_VALID_MASK_BIT);
+        }
 
-        if (tiny_gps.altitude.isValid()) s_altitude = tiny_gps.altitude.meters();
-        else is_complete_read = false;
+        if (tiny_gps.altitude.isValid()) {
+            s_altitude = tiny_gps.altitude.meters();
+            state::setValidMaskBit(MAIN_GPS_ALTITUDE_VALID_MASK_BIT);
+        }
+        else {
+            is_complete_read = false;
+            state::clearValidMaskBit(MAIN_GPS_ALTITUDE_VALID_MASK_BIT);
+        }
         
-        if (tiny_gps.satellites.isValid()) s_sattelite_count = (std::uint8_t) tiny_gps.satellites.value();
-        else is_complete_read = false;
+        if (tiny_gps.satellites.isValid()) {
+            s_sattelite_count = (std::uint8_t) tiny_gps.satellites.value();
+            state::setValidMaskBit(MAIN_GPS_SATTELITE_COUNT_VALID_MASK_BIT);
+        }
+        else {
+            is_complete_read = false;
+            state::clearValidMaskBit(MAIN_GPS_SATTELITE_COUNT_VALID_MASK_BIT);
+        }
 
         return is_complete_read;
     }

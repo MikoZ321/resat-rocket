@@ -3,6 +3,7 @@
 #include <Adafruit_MAX31856.h>
 
 #include "config.h"
+#include "core/state.h"
 
 Adafruit_MAX31856 thermocouple_top(THERMOCOUPLE_TOP_CS_PIN);
 Adafruit_MAX31856 thermocouple_bottom(THERMOCOUPLE_BOTTOM_CS_PIN);
@@ -23,13 +24,27 @@ namespace thermocouples {
     }
 
     bool readSensorData() {
-        if (thermocouple_top.readFault()) return false;
-        s_top_temperature_c = thermocouple_top.readThermocoupleTemperature();
+        bool is_valid_read = true;
 
-        if (thermocouple_bottom.readFault()) return false;
-        s_bottom_temperature_c = thermocouple_bottom.readThermocoupleTemperature();
+        if (thermocouple_top.readFault()) {
+            state::clearValidMaskBit(THERMOCOUPLE_TOP_VALID_MASK_BIT);
+            is_valid_read = false;
+        }
+        else {
+            s_top_temperature_c = thermocouple_top.readThermocoupleTemperature();
+            state::setValidMaskBit(THERMOCOUPLE_TOP_VALID_MASK_BIT);
+        }
 
-        return true;
+        if (thermocouple_bottom.readFault()) {
+            state::clearValidMaskBit(THERMOCOUPLE_BOTTOM_VALID_MASK_BIT);
+            is_valid_read = false;
+        }
+        else {
+            s_bottom_temperature_c = thermocouple_bottom.readThermocoupleTemperature();
+            state::setValidMaskBit(THERMOCOUPLE_BOTTOM_VALID_MASK_BIT);
+        }
+
+        return is_valid_read;
     }
 
     void fill(float& top_temperature_c, float& bottom_temperature_c) {

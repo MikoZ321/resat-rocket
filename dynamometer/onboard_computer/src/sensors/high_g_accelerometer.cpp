@@ -3,6 +3,7 @@
 #include <Adafruit_H3LIS331.h>
 
 #include "config.h"
+#include "core/state.h"
 
 Adafruit_H3LIS331 h3lis331 = Adafruit_H3LIS331();
 
@@ -20,12 +21,16 @@ namespace high_g_accelerometer {
 
     bool readSensorData() {
         sensors_event_t acceleration_high_g;
-        if (!h3lis331.getEvent(&acceleration_high_g)) return false;
+        if (!h3lis331.getEvent(&acceleration_high_g)) {
+            state::clearValidMaskBit(H3LIS331_VALID_MASK_BIT);
+            return false;
+        }
 
         s_acceleration_high_g[0] = acceleration_high_g.acceleration.x;
         s_acceleration_high_g[1] = acceleration_high_g.acceleration.y;
         s_acceleration_high_g[2] = acceleration_high_g.acceleration.z;
 
+        state::setValidMaskBit(H3LIS331_VALID_MASK_BIT);
         return true;
     }
 

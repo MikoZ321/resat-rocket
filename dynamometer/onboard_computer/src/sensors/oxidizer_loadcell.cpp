@@ -3,6 +3,7 @@
 #include <Adafruit_NAU7802.h>
 
 #include "config.h"
+#include "core/state.h"
 
 Adafruit_NAU7802 nau;
 
@@ -21,12 +22,14 @@ namespace oxidizer_loadcell {
 
     bool readSensorData() {
         if (!nau.available()) {
+            state::clearValidMaskBit(OXIDIZER_LOADCELL_VALID_MASK_BIT);
             return false;
         }
 
         int32_t reading = nau.read();
         s_oxidizer_weight = reading * OXIDIZER_LOADCELL_SCALE + OXIDIZER_LOADCELL_OFFSET;
 
+        state::setValidMaskBit(OXIDIZER_LOADCELL_VALID_MASK_BIT);
         return true; 
     }
 
