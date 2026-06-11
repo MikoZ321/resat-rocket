@@ -10,6 +10,7 @@
 #include "core/telemetry.h"
 #include "memory/sd_card.h"
 #include "memory/spi_flash.h"
+#include "outputs/buzzer.h"
 #include "outputs/camera.h"
 #include "outputs/leds.h"
 #include "sensors/analog_sensors.h"
@@ -59,6 +60,7 @@ namespace scheduler {
         // Initialize outputs
         leds::begin();
         camera::begin();
+        buzzer::begin();
     }
 
     void runTick(std::uint32_t tick_number) {

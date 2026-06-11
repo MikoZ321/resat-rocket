@@ -68,4 +68,6 @@
 
 #define CAMERA_TRIGGER_PIN 42
 
+#define BUZZER_PIN 16
+
 #endif
