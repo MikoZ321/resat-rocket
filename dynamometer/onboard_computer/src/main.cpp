@@ -3,7 +3,7 @@
 #include "core/scheduler.h"
 #include "core/state.h"
 #include "core/ticker.h"
-#include "outputs/buzzer.h"
+#include "sensors/piston_position_sensor.h"
 
 void setup() {
   Serial.begin(115200);
@@ -16,5 +16,6 @@ void setup() {
 void loop() {
   if (!ticker::consume()) return;
 
-  buzzer::sendPulse();
+  piston_position_sensor::readSensorData();
+  piston_position_sensor::dumpHallData();
 }
