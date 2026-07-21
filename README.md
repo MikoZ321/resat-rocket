@@ -89,7 +89,7 @@ The onboard computer relies on a three-layered tick structure:
 
 The master tick is implemented using the `ticker` namespace, whose implementation is based on the built-in `esp_timer`. 
 
-Each data packet contains the following sensor readings, floats printed to 4 decimal places (except for gps coordinates) and integers printed in decimal form (including the bit mask) and seperated by a semicolon (;):
+Each data packet arriving via USB at the PC contains the following sensor readings and state variables:
 * timestamp
 * frame index
 * 3-axis acceleration (main imu)
@@ -119,6 +119,8 @@ Additonally, at the ground station the following values will be attached, before
 * received frame count
 * invalid frame count
 * missing frame count
+
+All of the sensor readings are seperated by semicolons (;) and the frame ends in a new-line character, with the floats printed with accuracy up to 4 decimal places (apart from the GPS coordinates, which receive 6) and integers printed in decimal form (including the bit mask).
 
 The data will be transfered between components as displayed in the diagram below.
 

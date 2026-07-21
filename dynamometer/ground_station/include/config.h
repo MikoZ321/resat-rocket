@@ -8,4 +8,7 @@
 
 #define RX_BUFFER_SIZE 512
 
+#define FLOAT_PRECISION 4
+#define GPS_PRECISION 6
+
 #endif
