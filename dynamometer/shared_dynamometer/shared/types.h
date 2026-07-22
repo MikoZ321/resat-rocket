@@ -5,12 +5,27 @@
 #include <cstdint>
 
 enum class FlightPhase : std::uint8_t {
-    PRELAUNCH,
-    ARMED,
-    LAUNCHED,
-    DESCENT,
-    LANDED,
-    NOT_SET = 0xFF
+   PRELAUNCH,
+   ARMED,
+   LAUNCHED,
+   DESCENT,
+   LANDED,
+   NOT_SET = 0xFF
+};
+
+enum class ArmState : std::uint8_t {
+   IDLE,
+   ARMED,
+};
+
+enum class CommandResult : std::uint8_t {
+   OK,
+   NOT_ARMED,
+};
+
+enum class CommandType : std::uint8_t {
+   ARM,
+   DISARM,
 };
 
 typedef struct __attribute__((packed)) {
@@ -44,6 +59,9 @@ typedef struct __attribute__((packed)) {
    // Tail metadata
    std::uint16_t is_valid_reading_mask;
    FlightPhase flight_phase;
+   ArmState arm_state;
+   std::uint16_t last_command_frame_index;
+   CommandResult last_command_result;
    std::uint16_t crc;
 } full_telemetry_frame_t;
 
@@ -64,5 +82,13 @@ typedef struct __attribute__((packed)) {
    std::uint16_t is_valid_reading_mask;
    std::uint16_t crc;
 } mini_telemetry_frame_t;
+
+typedef struct __attribute__((packed)) {
+   std::uint8_t sync[2];
+   std::uint16_t command_frame_index;
+   CommandType type;
+   std::uint8_t payload[4];
+   std::uint16_t crc;
+} command_frame_t;
 
 #endif

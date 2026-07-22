@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "communication/command.h"
 #include "core/state.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
@@ -74,6 +75,9 @@ namespace telemetry {
 
         s_full_frame.is_valid_reading_mask = state::getValidMask();
         s_full_frame.flight_phase = state::getFlightPhase();
+        s_full_frame.arm_state = state::getArmState();
+        s_full_frame.last_command_frame_index = command::getCommandFrameIndex();
+        s_full_frame.last_command_result = state::getCommandResult();
         s_full_frame.crc = crc::compute(reinterpret_cast<const std::uint8_t*>(&s_full_frame), sizeof(s_full_frame) - sizeof(s_full_frame.crc));
     }
 

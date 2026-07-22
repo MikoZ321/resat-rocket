@@ -114,6 +114,9 @@ Each data packet arriving via USB at the PC contains the following sensor readin
 * main battery level
 * is_valid_reading bit mask
 * current flight phase
+* current arm state
+* last command frame index
+* last command result
 
 Additonally, at the ground station the following values will be attached, before being sent to the computer dashboard:
 * received frame count

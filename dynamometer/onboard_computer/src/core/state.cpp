@@ -4,6 +4,8 @@
 
 RTC_DATA_ATTR static FlightPhase s_persisted_phase = FlightPhase::NOT_SET;
 
+static ArmState s_current_arm_state;
+static CommandResult s_last_command_result;
 static FlightPhase s_current_flight_phase;
 static std::uint16_t s_is_valid_reading_mask;
 
@@ -17,6 +19,14 @@ namespace state {
         s_current_flight_phase = FlightPhase::PRELAUNCH;
 
         s_is_valid_reading_mask = 0;
+    }
+
+    ArmState getArmState() {
+        return s_current_arm_state;
+    }
+
+    CommandResult getCommandResult() {
+        return s_last_command_result;
     }
 
     FlightPhase getFlightPhase() {

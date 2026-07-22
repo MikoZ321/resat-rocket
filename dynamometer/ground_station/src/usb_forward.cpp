@@ -80,6 +80,9 @@ namespace usb_forward {
         // Tail
         printValue(full_frame.is_valid_reading_mask);
         printValue(static_cast<std::uint8_t>(full_frame.flight_phase));
+        printValue(static_cast<std::uint8_t>(full_frame.arm_state));
+        printValue(full_frame.last_command_frame_index);
+        printValue(static_cast<std::uint8_t>(full_frame.last_command_result));
         
         // Radio metadata
         printValue(frames_received_count);

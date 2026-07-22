@@ -8,6 +8,8 @@
 
 namespace state {
     void begin(); // Initializes the state machine handler
+    ArmState getArmState(); // Returns the current arm state
+    CommandResult getCommandResult(); // Returns the most recent command result
     FlightPhase getFlightPhase(); // Returns the current flight phase
     void persistFlightPhase(); // Persists the current flight phase to RTC memory, so it can be recovered after deep sleep
     void setFlightPhase(FlightPhase new_flight_phase); // Switches the current flight phase to the new argument, which must be within the FlightPhase enum range
