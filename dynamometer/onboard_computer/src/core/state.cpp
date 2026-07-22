@@ -37,6 +37,10 @@ namespace state {
         s_persisted_phase = s_current_flight_phase;
     }
 
+    void setCommandResult(CommandResult new_command_result) {
+        s_last_command_result = new_command_result;
+    }
+
     void setFlightPhase(FlightPhase new_flight_phase) {
         s_current_flight_phase = new_flight_phase;
     }

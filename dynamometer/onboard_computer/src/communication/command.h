@@ -5,7 +5,10 @@
 #include <cstdint>
 
 namespace command {
+    void begin();
+    void executeOne(); // Executes one command
     std::uint16_t getCommandFrameIndex(); // Returns the current command frame index
+    void onByteReceived(std::uint8_t byte);
 }
 
 #endif

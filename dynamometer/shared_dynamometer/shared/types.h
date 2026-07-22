@@ -21,6 +21,7 @@ enum class ArmState : std::uint8_t {
 enum class CommandResult : std::uint8_t {
    OK,
    NOT_ARMED,
+   REPLAY_REJECT,
 };
 
 enum class CommandType : std::uint8_t {

@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
+#include "communication/command.h"
 #include "communication/radio.h"
 #include "config.h"
 #include "core/state.h"
@@ -64,6 +65,9 @@ namespace scheduler {
         camera::begin();
         buzzer::begin();
         multiplexer::begin();
+
+        // Initialize command processing
+        command::begin();
     }
 
     void runTick(std::uint32_t tick_number) {
@@ -107,5 +111,7 @@ namespace scheduler {
             spi_flash::periodicMaintenance(tick_number / TICK_SLOW_DIVISOR);
             state::persistFlightPhase();
         }
+
+        command::executeOne();
     }
 }
