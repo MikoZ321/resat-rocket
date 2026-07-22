@@ -31,7 +31,7 @@ The C++ files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R
 
 |Name|Description|Through|Communication protocol|
 |----|----|----|----|
-|Thrust loadcell|Measures the thrust|ADS1232|SPI|
+|Thrust loadcell|Measures the thrust|ADS1232|Other|
 |MH-series loadcell|Measures the weight of the oxidizer tank|NAU7802|I2C|
 |Top thermocouple|Measures the temperature at the top of the engine|MAX31856|SPI|
 |Bottom thermocouple|Measures the temperature at the bottom of the engine|MAX31856|SPI|

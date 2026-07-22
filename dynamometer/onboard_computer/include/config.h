@@ -19,9 +19,9 @@
 #define H3LIS331_I2C_ADDRESS 0x18
 #define BMP581_I2C_ADDRESS 0x47
 
-#define ADS1232_DOUT_PIN 21
+#define ADS1232_DOUT_PIN 47
 #define ADS1232_SCLK_PIN 15
-#define ADS1232_PWDN_PIN 47
+#define ADS1232_PWDN_PIN 21
 
 #define THRUST_LOADCELL_SCALE 1000.0 // Placeholder value, to be determined experimentally
 #define THRUST_LOADCELL_OFFSET 0.0 // Placeholder value, to be determined experimentally

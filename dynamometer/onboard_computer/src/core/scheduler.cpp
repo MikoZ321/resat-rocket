@@ -33,11 +33,9 @@ namespace scheduler {
         // Initialize I2C
         Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY_HZ);
         Wire.setTimeOut(I2C_TIMEOUT_MS);
-        Serial.println("[INIT] OK: I2C");
 
         // Initialize SPI
         SPI.begin(SPI_SCLK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);
-        Serial.println("[INIT] OK: SPI");
 
         // TODO: handle init failures
         // Initialize Tier A sensors
@@ -61,18 +59,23 @@ namespace scheduler {
         sd_card::begin();
 
         // Initialize outputs
-        leds::begin();
+        // TODO: fix 
+        //leds::begin();
         camera::begin();
         buzzer::begin();
         multiplexer::begin();
 
         // Initialize command processing
         command::begin();
+        Serial.println("[INIT] OK");
     }
 
     void runTick(std::uint32_t tick_number) {
         bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
         bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);
+        // TODO: remove, debug info
+        Serial.print("[TICK]: ");
+        Serial.println(tick_number);
 
         // Poll Tier A sensors
         main_imu::readSensorData();
@@ -82,7 +85,8 @@ namespace scheduler {
 
         // Poll Tier B sensors
         if (is_slow_tick) {
-            oxidizer_loadcell::readSensorData();
+            // TODO: write own driver ? produces error
+            //oxidizer_loadcell::readSensorData();
             analog_sensors::readSensorData();
             thermocouples::readSensorData();
             // TODO: gauge piston position
