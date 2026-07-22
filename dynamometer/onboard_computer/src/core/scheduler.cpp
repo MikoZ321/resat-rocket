@@ -73,9 +73,6 @@ namespace scheduler {
     void runTick(std::uint32_t tick_number) {
         bool is_slow_tick = !(tick_number % TICK_SLOW_DIVISOR);
         bool is_house_tick = !(tick_number % TICK_HOUSE_DIVISOR);
-        // TODO: remove, debug info
-        Serial.print("[TICK]: ");
-        Serial.println(tick_number);
 
         // Poll Tier A sensors
         main_imu::readSensorData();
@@ -85,8 +82,7 @@ namespace scheduler {
 
         // Poll Tier B sensors
         if (is_slow_tick) {
-            // TODO: write own driver ? produces error
-            //oxidizer_loadcell::readSensorData();
+            oxidizer_loadcell::readSensorData();
             analog_sensors::readSensorData();
             thermocouples::readSensorData();
             // TODO: gauge piston position

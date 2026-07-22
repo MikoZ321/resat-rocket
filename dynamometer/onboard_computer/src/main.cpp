@@ -4,8 +4,6 @@
 #include "core/state.h"
 #include "core/ticker.h"
 
-#include "sensors/thrust_loadcell.h"
-
 void setup() {
   Serial.begin(115200);
 
@@ -17,9 +15,5 @@ void setup() {
 void loop() {
   if (!ticker::consume()) return;
 
-  // scheduler::runTick(ticker::getTickCount());
-  thrust_loadcell::readSensorData();
-  float temp {};
-  thrust_loadcell::fill(temp);
-  Serial.println(temp);
+  scheduler::runTick(ticker::getTickCount());
 }
