@@ -17,6 +17,7 @@
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
+#include "sensors/main_battery_level_sensor.h"
 #include "sensors/main_gps.h"
 #include "sensors/main_imu.h"
 #include "sensors/oxidizer_loadcell.h"
@@ -52,7 +53,7 @@ namespace scheduler {
 
         // Initialize Tier C sensors
         main_gps::begin();
-        // TODO: init battery level sensor
+        main_battery_level_sensor::begin();
 
         // Initialize memory
         spi_flash::begin();
@@ -86,7 +87,7 @@ namespace scheduler {
         // Poll Tier C sensors
         if (is_house_tick) {
             main_gps::readSensorData();
-            // TODO: read battery level
+            main_battery_level_sensor::readSensorData();
         }
 
         // TODO: calculate fusion altitude

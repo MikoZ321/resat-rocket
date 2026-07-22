@@ -6,6 +6,7 @@
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
+#include "sensors/main_battery_level_sensor.h"
 #include "sensors/main_gps.h"
 #include "sensors/main_imu.h"
 #include "sensors/oxidizer_loadcell.h"
@@ -67,7 +68,9 @@ namespace telemetry {
         s_full_frame.gps_longitude = temp_gps_longitude;
         s_full_frame.gps_altitude = temp_gps_altitude;
         s_full_frame.gps_sattelite_count = temp_gps_sattelite_count;
-        // TODO: fill battery level
+        float temp_main_battery_level {};
+        main_battery_level_sensor::fill(temp_main_battery_level);
+        s_full_frame.main_battery_level = temp_main_battery_level;
 
         s_full_frame.is_valid_reading_mask = state::getValidMask();
         s_full_frame.flight_phase = state::getFlightPhase();
