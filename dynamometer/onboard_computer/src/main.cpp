@@ -15,5 +15,7 @@ void setup() {
 void loop() {
   if (!ticker::consume()) return;
 
+  // Delay to prevent error in tick count
+  delay(1);
   scheduler::runTick(ticker::getTickCount());
 }
