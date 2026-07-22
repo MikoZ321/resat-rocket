@@ -3,7 +3,6 @@ from PySide6.QtGui import QAction
 from PySide6.QtCore import QObject, Signal, Slot, QThread, QTimer
 import serial
 import serial.tools.list_ports
-import time
 import pyqtgraph as pg
 from collections import deque
 
@@ -112,7 +111,7 @@ class Dashboard(QMainWindow):
         self.parsed_data = DataContainer()
 
 
-    def handlePacket(self, timestamp: float, raw_data: bytes) -> None:
+    def handlePacket(self, raw_data: bytes) -> None:
         """
         Receives raw serial data from SerialWorker.
         Runs in GUI thread.
@@ -123,7 +122,7 @@ class Dashboard(QMainWindow):
             line, self._serial_buffer = self._serial_buffer.split(b"\n", 1)
 
             # TODO: protect against corrupted or incomplete packets
-            self.parsed_data: DataContainer = parsePacket(timestamp, line)
+            self.parsed_data: DataContainer = parsePacket(line)
 
             # log values for thrust plot
             self.thrust_buffer.append(self.parsed_data.current_thrust)
@@ -134,11 +133,7 @@ class Dashboard(QMainWindow):
             self.max_thrust_widget.setValue(f"{self.parsed_data.max_thrust:.2f}")
             self.total_impulse_widget.setValue(f"{self.parsed_data.total_impulse:.2f}")
 
-            # display engine info values
-            self.brightness_widget.setValue(f"{self.parsed_data.brightness:.2f}")
-
             # display communications info values
-            self.rssi_widget.setValue(f"{self.parsed_data.rssi:.2f}")
             self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
             self.elapsed_time_widget.setValue(f"{self.parsed_data.elapsed_time:.2f}")
 
@@ -359,13 +354,10 @@ class DataContainer():
     '''Container used to store both the incoming telemetry and derived quantities'''
     def __init__(self) -> None:
         # incoming telemetry values
-        self.time_sent: float = 0 # in seconds
-        self.time_received: float = 0 # in seconds
+        self.timestamp: float = 0 # in seconds
         self.current_thrust: float = 0 # in Newtons
         self.oxidizer_pressure: float = 0 # in Pascals
         self.fuel_pressure: float = 0 # in Pascals
-        self.brightness: float = 0 # %
-        self.rssi: float = 0 # in dBm
 
         # historical telemetry values
         self.max_thrust: float = 0 # in Newtons
@@ -377,7 +369,7 @@ class DataContainer():
 
 
 class SerialWorker(QObject):
-    packet_received = Signal(float, bytes)
+    packet_received = Signal(bytes)
     status_changed = Signal(str)
     error = Signal(str)
 
@@ -429,8 +421,7 @@ class SerialWorker(QObject):
             bytes_waiting = self._serial.in_waiting
             if bytes_waiting > 0:
                 raw = self._serial.read(bytes_waiting)
-                timestamp = time.monotonic()
-                self.packet_received.emit(timestamp, raw)
+                self.packet_received.emit(raw)
 
         except Exception as e:
             self.error.emit(str(e))
@@ -507,7 +498,7 @@ class ValveControlWidget(QWidget):
         return None
 
 # TODO: maybe add packet travel time to dashboard
-def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
+def parsePacket(rawData: bytes) -> DataContainer:
     decoded_data: str = rawData.decode('utf-8')
 
     value_list: list[str] = list(decoded_data.split(';'))
@@ -516,20 +507,19 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
 
     # handle time calculations
     try:
-        result.time_sent = float(value_list[0]) / 1000
+        result.timestamp = float(value_list[0]) / 1000
     except Exception:
-        result.time_sent = 0
-    result.time_received = timestamp
+        result.timestamp = 0
     
     # calculate data frequency
     previous_time_sent: float = 0
 
-    if window.parsed_data.time_sent != 0:
-        previous_time_sent = window.parsed_data.time_sent
+    if window.parsed_data.timestamp != 0:
+        previous_time_sent = window.parsed_data.timestamp
     else:
-        previous_time_sent = result.time_sent
+        previous_time_sent = result.timestamp
 
-    time_since_last_packet: float = result.time_sent - previous_time_sent
+    time_since_last_packet: float = result.timestamp - previous_time_sent
     # prevent division by zero
     if time_since_last_packet:
         result.data_frequency = 1 / time_since_last_packet
@@ -539,7 +529,7 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
 
     # parse thrust value
     try:
-        result.current_thrust = float(value_list[1])
+        result.current_thrust = float(value_list[14])
     except Exception:
         result.current_thrust = 0
 
@@ -555,27 +545,15 @@ def parsePacket(timestamp: float, rawData: bytes) -> DataContainer:
 
     # parse oxidizer pressure
     try:
-        result.oxidizer_pressure = float(value_list[2])
+        result.oxidizer_pressure = float(value_list[17])
     except Exception:
         result.oxidizer_pressure = 0
 
     # parse fuel pressure
     try:
-        result.fuel_pressure = float(value_list[3])
+        result.fuel_pressure = float(value_list[16])
     except Exception:
         result.fuel_pressure = 0
-
-    # parse brightness
-    try:
-        result.brightness = float(value_list[7])
-    except Exception:
-        result.brightness = 0
-
-    # parse rssi
-    try:
-        result.rssi = float(value_list[8])
-    except Exception:
-        result.rssi = 0
 
     return result
 
