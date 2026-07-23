@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <cstdint>
+#include <HardwareSerial.h>
 
 #include "config.h"
 #include "shared/communication_protocol.h"
@@ -10,20 +11,22 @@ static const std::uint32_t AT_GUARD_MS = 1100;  // 1 s + margin
 static const std::uint32_t AT_RESPONSE_MS = 500;
 static const std::uint32_t AT_DRAIN_MS = 50;
 
+HardwareSerial radio_serial(1);
+
 // Enter AT command mode. Returns true if "OK" received.
 static bool enterATMode() {
     // Flush any pending TX data first
-    Serial1.flush();
+    radio_serial.flush();
     delay(AT_GUARD_MS);
-    Serial1.print("+++");
+    radio_serial.print("+++");
     delay(AT_GUARD_MS);
 
     // Read response — expect "OK"
     std::uint32_t start = millis();
     String response = "";
     while (millis() - start < AT_RESPONSE_MS) {
-        while (Serial1.available())
-            response += (char)Serial1.read();
+        while (radio_serial.available())
+            response += (char)radio_serial.read();
         if (response.indexOf("OK") >= 0) return true;
     }
     return false;
@@ -31,27 +34,27 @@ static bool enterATMode() {
 
 // Exit AT command mode.
 static void exitATMode() {
-    Serial1.println("ATO");
+    radio_serial.println("ATO");
     delay(AT_DRAIN_MS);
     // Drain any response bytes
-    while (Serial1.available()) Serial1.read();
+    while (radio_serial.available()) radio_serial.read();
 }
 
 // Send one AT command and return the response string.
 static String sendAT(const char* cmd) {
     // Drain input before sending
-    while (Serial1.available()) Serial1.read();
-    Serial1.println(cmd);
+    while (radio_serial.available()) radio_serial.read();
+    radio_serial.println(cmd);
     delay(AT_RESPONSE_MS);
     String resp = "";
-    while (Serial1.available())
-        resp += (char)Serial1.read();
+    while (radio_serial.available())
+        resp += (char)radio_serial.read();
     return resp;
 }
 
 namespace radio {
     bool begin() {
-        Serial1.begin(RADIO_BAUD_RATE, SERIAL_8N1, RADIO_RX_PIN, RADIO_TX_PIN);
+        radio_serial.begin(RADIO_BAUD_RATE, SERIAL_8N1, RADIO_RX_PIN, RADIO_TX_PIN);
 
         if (!enterATMode()) {
             Serial.println("[Radio] RFD868 did not respond to +++ — modem may be in data mode already");
@@ -86,6 +89,6 @@ namespace radio {
     }
 
     void enqueueFullTelemetryFrame(const full_telemetry_frame_t& full_frame) { 
-        Serial1.write((const std::uint8_t*)&full_frame, sizeof(full_telemetry_frame_t));
+        radio_serial.write((const std::uint8_t*)&full_frame, sizeof(full_telemetry_frame_t));
     }
 }

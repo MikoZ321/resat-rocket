@@ -11,4 +11,5 @@ void setup() {
 
 void loop() {
   radio::process();
+  delay(1);
 }

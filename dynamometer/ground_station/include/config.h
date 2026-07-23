@@ -3,8 +3,8 @@
 
 #define SERIAL_MONITOR_BAUD_RATE 115200
 
-#define RADIO_TX_PIN -1
-#define RADIO_RX_PIN -1
+#define RADIO_TX_PIN 17
+#define RADIO_RX_PIN 18
 
 #define RX_BUFFER_SIZE 512
 

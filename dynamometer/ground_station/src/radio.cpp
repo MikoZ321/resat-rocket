@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <cstddef>
 #include <cstdint>
+#include <HardwareSerial.h>
 
 #include "config.h"
 #include "shared/communication_protocol.h"
@@ -14,20 +15,22 @@ static const std::uint32_t AT_GUARD_MS = 1100;  // 1 s + margin
 static const std::uint32_t AT_RESPONSE_MS = 500;
 static const std::uint32_t AT_DRAIN_MS = 50;
 
+HardwareSerial radio_serial(1);
+
 // Enter AT command mode. Returns true if "OK" received.
 static bool enterATMode() {
     // Flush any pending TX data first
-    Serial1.flush();
+    radio_serial.flush();
     delay(AT_GUARD_MS);
-    Serial1.print("+++");
+    radio_serial.print("+++");
     delay(AT_GUARD_MS);
 
     // Read response — expect "OK"
     std::uint32_t start = millis();
     String response = "";
     while (millis() - start < AT_RESPONSE_MS) {
-        while (Serial1.available())
-            response += (char)Serial1.read();
+        while (radio_serial.available())
+            response += (char)radio_serial.read();
         if (response.indexOf("OK") >= 0) return true;
     }
     return false;
@@ -35,21 +38,21 @@ static bool enterATMode() {
 
 // Exit AT command mode.
 static void exitATMode() {
-    Serial1.println("ATO");
+    radio_serial.println("ATO");
     delay(AT_DRAIN_MS);
     // Drain any response bytes
-    while (Serial1.available()) Serial1.read();
+    while (radio_serial.available()) radio_serial.read();
 }
 
 // Send one AT command and return the response string.
 static String sendAT(const char* cmd) {
     // Drain input before sending
-    while (Serial1.available()) Serial1.read();
-    Serial1.println(cmd);
+    while (radio_serial.available()) radio_serial.read();
+    radio_serial.println(cmd);
     delay(AT_RESPONSE_MS);
     String resp = "";
-    while (Serial1.available())
-        resp += (char)Serial1.read();
+    while (radio_serial.available())
+        resp += (char)radio_serial.read();
     return resp;
 }
 
@@ -91,24 +94,25 @@ static bool tryFullFrame() {
     for (std::size_t i = 0; i < sizeof(full_telemetry_frame_t); i++)
         ((std::uint8_t*)&full_frame)[i] = s_rx_buffer[(s_rx_tail_pointer + i) % RX_BUFFER_SIZE];
 
+    delay(1);
     bool is_correct_crc = crc::verify((const std::uint8_t*) &full_frame,
                                       sizeof(full_telemetry_frame_t) - sizeof(std::uint16_t), full_frame.crc);
     if (!is_correct_crc) {
         s_crc_fail_count++;
-        Serial.println("[GS] Full frame CRC fail.");
+        //Serial.println("[GS] Full frame CRC fail.");
         return false;  // caller advances by 1 byte
     }
 
     // Sequence gap detection
     if (s_last_full_frame_index != 0xFFFF) {
         // Mini frame gets s_last_full_frame_index + 1
-        std::uint16_t expected_telemetry_frame_index = s_last_full_frame_index + 2;
+        std::uint16_t expected_telemetry_frame_index = s_last_full_frame_index + 3;
         if (full_frame.telemetry_frame_index != expected_telemetry_frame_index) {
-            std::uint16_t gap = (std::uint16_t)(full_frame.telemetry_frame_index - expected_telemetry_frame_index) / 2;
+            std::uint16_t gap = (std::uint16_t)(full_frame.telemetry_frame_index - expected_telemetry_frame_index) / 3;
             s_frame_index_gap_count++;
-            Serial.print("[GS] Seq gap, ");
-            Serial.print(gap);
-            Serial.println(" frames lost)");
+            //Serial.print("[GS] Seq gap, ");
+            //Serial.print(gap);
+            //Serial.println(" frames lost)");
         }
     }
     s_last_full_frame_index = full_frame.telemetry_frame_index;
@@ -123,8 +127,8 @@ static bool tryFullFrame() {
 
 namespace radio {
     bool begin() {
-        Serial1.begin(RADIO_BAUD_RATE, SERIAL_8N1, RADIO_RX_PIN, RADIO_TX_PIN); 
-       
+        radio_serial.begin(RADIO_BAUD_RATE, SERIAL_8N1, RADIO_RX_PIN, RADIO_TX_PIN); 
+        /*
         if (!enterATMode()) {
             Serial.println("[Radio] RFD868 did not respond to +++ — modem may be in data mode already");
             // Not necessarily a failure — modem may already be configured
@@ -144,16 +148,16 @@ namespace radio {
         sendAT("AT&W"); // Save settings to EEPROM
         exitATMode();
 
-        Serial.println("[Radio] RFD868 configured and in data mode.");
+        Serial.println("[Radio] RFD868 configured and in data mode.");*/
         return true;
     }
 
     void process() {
-        // Drain Serial1 into ring buffer
-        while (Serial1.available()) {
+        // Drain radio_serial into ring buffer
+        while (radio_serial.available()) {
             std::uint16_t next = (s_rx_head_pointer + 1) % RX_BUFFER_SIZE;
             if (next == s_rx_tail_pointer) break;  // buffer full — drop byte
-            s_rx_buffer[s_rx_head_pointer] = (std::uint8_t)Serial1.read();
+            s_rx_buffer[s_rx_head_pointer] = (std::uint8_t)radio_serial.read();
             s_rx_head_pointer = next;
         }
 

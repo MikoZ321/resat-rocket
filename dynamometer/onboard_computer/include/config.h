@@ -82,8 +82,8 @@
 #define SD_CARD_CS_PIN 10
 #define SD_CARD_BUFFER_SIZE 512
 
-#define RADIO_RX_PIN 17
-#define RADIO_TX_PIN 18
+#define RADIO_RX_PIN 18
+#define RADIO_TX_PIN 17
 
 #define LED_PIN 48
 #define LED_COUNT 2
