@@ -22,6 +22,7 @@ enum class CommandResult : std::uint8_t {
    OK,
    NOT_ARMED,
    REPLAY_REJECT,
+   WRONG_PHASE,
 };
 
 enum class CommandType : std::uint8_t {

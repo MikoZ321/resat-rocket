@@ -11,4 +11,7 @@
 #define FLOAT_PRECISION 4
 #define GPS_PRECISION 6
 
+#define USB_COMMAND_WRAPPER_SIZE 8
+#define USB_COMMAND_WRAPPER_TERMINATOR 0x88 // Confirm with python files
+
 #endif

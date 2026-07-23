@@ -5,11 +5,18 @@ import serial
 import serial.tools.list_ports
 import pyqtgraph as pg
 from collections import deque
+from enum import IntEnum
+from functools import partial
 
-# TODO: think about timestamp vs a time value from the telemetry
+class CommandType(IntEnum): 
+    ARM = 0
+    DISARM = 1
+
 
 class Dashboard(QMainWindow):
     '''Serves as the class container for the entire GUI'''
+    send_serial_command = Signal(bytes)
+
     def __init__(self, app: QApplication) -> None:
         super().__init__()
         self.app: QApplication = app
@@ -32,6 +39,13 @@ class Dashboard(QMainWindow):
 
         # init serial port to None, TODO: save recent config
         self.current_port: str | None = None
+
+        # init command menu
+        command_menu: QMenu = menu_bar.addMenu("Commands")
+        arm_action: QAction = command_menu.addAction("Arm")
+        arm_action.triggered.connect(partial(self.handleCommand, CommandType.ARM))
+        disarm_action: QAction = command_menu.addAction("Disarm")
+        disarm_action.triggered.connect(partial(self.handleCommand, CommandType.DISARM))
 
         # start central widget section
         central_widget: QWidget = QWidget(self)
@@ -109,6 +123,20 @@ class Dashboard(QMainWindow):
 
         # init empty data container
         self.parsed_data = DataContainer()
+
+
+    @Slot(CommandType)
+    def handleCommand(
+        self,
+        command: CommandType,
+        payload: bytes = b"\x00\x00\x00\x00",
+    ):
+        if len(payload) != 4:
+            payload = (payload + b'\x00\x00\x00\x00')[:4]
+
+        packet = bytes([int('0xCC', 16), int('0x77', 16), int(command)]) + payload + bytes([int('0x88', 16)])
+        print(packet)
+        self.send_serial_command.emit(packet)
 
 
     def handlePacket(self, raw_data: bytes) -> None:
@@ -196,6 +224,7 @@ class Dashboard(QMainWindow):
         self.serial_worker.packet_received.connect(self.handlePacket)
         self.serial_worker.status_changed.connect(self.status_bar.showMessage)
         self.serial_worker.error.connect(self.status_bar.showMessage)
+        self.send_serial_command.connect(self.serial_worker.sendCommand)
 
         self.serial_thread.start()
         self.plot_timer.start()
@@ -411,6 +440,19 @@ class SerialWorker(QObject):
             self._serial.close()
 
         self.status_changed.emit("Disconnected")
+
+
+    @Slot(bytes)
+    def sendCommand(self, packet: bytes):
+        print("Sending command packet...")
+        if self._serial and self._serial.is_open:
+            try:
+                self._serial.write(packet)
+                self._serial.flush()
+                print(f"[SerialWorker] Sent packet: {packet.hex()}")
+            except Exception as e:
+                self.error.emit(str(e))
+
 
     @Slot()
     def _pollSerial(self):
