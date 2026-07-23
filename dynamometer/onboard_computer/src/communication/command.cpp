@@ -4,6 +4,7 @@
 #include <HardwareSerial.h>
 
 #include "core/state.h"
+#include "sensors/thrust_loadcell.h"
 #include "shared/communication_protocol.h"
 #include "shared/crc.h"
 #include "shared/types.h"
@@ -20,8 +21,10 @@ std::uint16_t command::getCommandFrameIndex() {
 // Bit N set = allowed in phase N.
 static constexpr std::uint8_t PHASE_ALLOWED[] = {
     // indexed by CommandType byte — sparse, only defined types matter
-    0b00000001, // ARM       — PRE_LAUNCH only
+    0b00000010, // ARM       — PRE_LAUNCH only
     0xFF,       // DISARM    — any phase
+    0b00000001, // SET_THRUST_SCALE - CONFIG only
+    0b00000001, // SET_THRUST_OFFSET - CONFIG only
 };
 
 // ── Ring buffer for raw received bytes ────────────────────────────────────
@@ -102,7 +105,7 @@ void command::executeOne() {
     } 
 
     // Dispatch
-    switch ((CommandType)cmd.type) {
+    switch (float converted_payload; (CommandType)cmd.type) {
         case CommandType::ARM:
             //State::transitionArm(ArmState::ARMED);
             Serial.println("[OC] Received ARM command.");
@@ -110,6 +113,18 @@ void command::executeOne() {
         case CommandType::DISARM:
             //State::resetArm();
             Serial.println("[OC] Received DISARM command.");
+            break;
+        case CommandType::SET_THRUST_SCALE:
+            Serial.println("[OC] Received SET_THRUST_SCALE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            Serial.println(converted_payload);
+            thrust_loadcell::setScale(converted_payload);
+            break;
+        case CommandType::SET_THRUST_OFFSET:
+            Serial.println("[OC] Received SET_THRUST_OFFSET command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            Serial.println(converted_payload);
+            thrust_loadcell::setOffset(converted_payload);
             break;
         default:
             break;

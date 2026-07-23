@@ -6,6 +6,8 @@
 #include "core/state.h"
 
 static float s_engine_thrust;
+static float s_thrust_scale;
+static float s_thrust_offset;
 
 namespace thrust_loadcell {
     // TODO: check setup and return value
@@ -14,6 +16,9 @@ namespace thrust_loadcell {
         digitalWrite(ADS1232_SCLK_PIN, LOW);
 
         pinMode(ADS1232_DOUT_PIN, INPUT);
+
+        s_thrust_scale = THRUST_LOADCELL_SCALE;
+        s_thrust_offset = THRUST_LOADCELL_OFFSET;
 
         return true;
     }
@@ -51,12 +56,20 @@ namespace thrust_loadcell {
         else
             raw = (std::int32_t)value;
 
-        s_engine_thrust = (raw - THRUST_LOADCELL_OFFSET) * THRUST_LOADCELL_SCALE;
+        s_engine_thrust = raw * s_thrust_scale + s_thrust_offset;
 
         return true;
     }
 
     void fill(float& engine_thrust) {
         engine_thrust = s_engine_thrust;
+    }
+
+    void setScale(float scale) {
+        s_thrust_scale = scale;
+    }
+
+    void setOffset(float offset) {
+        s_thrust_offset = offset;
     }
 }

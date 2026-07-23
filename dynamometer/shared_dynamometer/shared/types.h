@@ -5,6 +5,7 @@
 #include <cstdint>
 
 enum class FlightPhase : std::uint8_t {
+   CONFIG,
    PRELAUNCH,
    ARMED,
    LAUNCHED,
@@ -28,6 +29,8 @@ enum class CommandResult : std::uint8_t {
 enum class CommandType : std::uint8_t {
    ARM,
    DISARM,
+   SET_THRUST_SCALE,
+   SET_THRUST_OFFSET,
 };
 
 typedef struct __attribute__((packed)) {

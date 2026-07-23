@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy, QVBoxLayout, QHBoxLayout, QLabel
+from PySide6.QtWidgets import QMainWindow, QApplication, QMenuBar, QMenu, QGridLayout, QWidget, QPushButton, QSizePolicy, QVBoxLayout, QHBoxLayout, QLabel, QInputDialog, QMessageBox
 from PySide6.QtGui import QAction
 from PySide6.QtCore import QObject, Signal, Slot, QThread, QTimer
 import serial
@@ -7,10 +7,14 @@ import pyqtgraph as pg
 from collections import deque
 from enum import IntEnum
 from functools import partial
+import struct
+import re
 
 class CommandType(IntEnum): 
     ARM = 0
     DISARM = 1
+    SET_THRUST_SCALE = 2
+    SET_THRUST_OFFSET = 3
 
 
 class Dashboard(QMainWindow):
@@ -46,6 +50,10 @@ class Dashboard(QMainWindow):
         arm_action.triggered.connect(partial(self.handleCommand, CommandType.ARM))
         disarm_action: QAction = command_menu.addAction("Disarm")
         disarm_action.triggered.connect(partial(self.handleCommand, CommandType.DISARM))
+        set_thrust_scale_action: QAction = command_menu.addAction("Set thrust scale")
+        set_thrust_scale_action.triggered.connect(self.promptThrustScale)
+        set_thrust_offset_action: QAction = command_menu.addAction("Set thrust offset")
+        set_thrust_offset_action.triggered.connect(self.promptThrustOffset)
 
         # start central widget section
         central_widget: QWidget = QWidget(self)
@@ -181,6 +189,108 @@ class Dashboard(QMainWindow):
             port_name_action.setCheckable(True)
             port_name_action.setChecked(port_name == self.current_port)
             port_name_action.triggered.connect(lambda checked=False, p=port_name : self.setCurrentPort(p))
+
+    # TODO: fix redundancy
+    def promptThrustOffset(self) -> None:
+        '''Prompts the user to enter the desired thrust offset value and sends it to the onboard computer'''
+        text, ok = QInputDialog.getText(
+            self,
+            "Set Thrust Offset",
+            "Enter payload as a float (e.g. 12.5, -3.2e3, 1.0f):"
+        )
+
+        if not ok:
+            return  # user cancelled
+
+        text = text.strip()
+
+        # strip C++-style float suffixes (f/F/l/L) since Python's float()
+        # doesn't accept them
+        cpp_float_pattern = re.compile(
+            r'^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?[fFlL]?$'
+        )
+
+        if not cpp_float_pattern.match(text):
+            QMessageBox.warning(
+                self, "Invalid payload",
+                "Payload must be a valid float, e.g. 12.5, -3.2e3, or 1.0f."
+            )
+            return
+
+        # remove trailing f/F/l/L suffix before parsing
+        numeric_text = text.rstrip('fFlL')
+
+        try:
+            value = float(numeric_text)
+        except ValueError:
+            QMessageBox.warning(
+                self, "Invalid payload",
+                "Payload must be a valid float, e.g. 12.5, -3.2e3, or 1.0f."
+            )
+            return
+
+        try:
+            # pack as 4-byte little-endian IEEE-754 single precision float
+            payload = struct.pack('<f', value)
+        except struct.error:
+            QMessageBox.warning(
+                self, "Invalid payload",
+                "Value is out of range for a 32-bit float."
+            )
+            return
+
+        self.handleCommand(CommandType.SET_THRUST_OFFSET, payload)
+
+
+    def promptThrustScale(self) -> None:
+        '''Prompts the user to enter the desired thrust scale value and sends it to the onboard computer'''
+        text, ok = QInputDialog.getText(
+            self,
+            "Set Thrust Scale",
+            "Enter payload as a float (e.g. 12.5, -3.2e3, 1.0f):"
+        )
+
+        if not ok:
+            return  # user cancelled
+
+        text = text.strip()
+
+        # strip C++-style float suffixes (f/F/l/L) since Python's float()
+        # doesn't accept them
+        cpp_float_pattern = re.compile(
+            r'^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?[fFlL]?$'
+        )
+
+        if not cpp_float_pattern.match(text):
+            QMessageBox.warning(
+                self, "Invalid payload",
+                "Payload must be a valid float, e.g. 12.5, -3.2e3, or 1.0f."
+            )
+            return
+
+        # remove trailing f/F/l/L suffix before parsing
+        numeric_text = text.rstrip('fFlL')
+
+        try:
+            value = float(numeric_text)
+        except ValueError:
+            QMessageBox.warning(
+                self, "Invalid payload",
+                "Payload must be a valid float, e.g. 12.5, -3.2e3, or 1.0f."
+            )
+            return
+
+        try:
+            # pack as 4-byte little-endian IEEE-754 single precision float
+            payload = struct.pack('<f', value)
+        except struct.error:
+            QMessageBox.warning(
+                self, "Invalid payload",
+                "Value is out of range for a 32-bit float."
+            )
+            return
+
+        self.handleCommand(CommandType.SET_THRUST_SCALE, payload)
 
 
     def quit(self) -> None:
