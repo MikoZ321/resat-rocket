@@ -31,6 +31,7 @@ enum class CommandType : std::uint8_t {
    DISARM,
    SET_THRUST_SCALE,
    SET_THRUST_OFFSET,
+   DUMP_FLASH,
 };
 
 typedef struct __attribute__((packed)) {

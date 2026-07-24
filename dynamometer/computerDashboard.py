@@ -15,6 +15,7 @@ class CommandType(IntEnum):
     DISARM = 1
     SET_THRUST_SCALE = 2
     SET_THRUST_OFFSET = 3
+    DUMP_FLASH = 4
 
 
 class Dashboard(QMainWindow):
@@ -54,6 +55,8 @@ class Dashboard(QMainWindow):
         set_thrust_scale_action.triggered.connect(self.promptThrustScale)
         set_thrust_offset_action: QAction = command_menu.addAction("Set thrust offset")
         set_thrust_offset_action.triggered.connect(self.promptThrustOffset)
+        dump_flash_action: QAction = command_menu.addAction("Dump flash")
+        dump_flash_action.triggered.connect(partial(self.handleCommand, CommandType.DUMP_FLASH))
 
         # start central widget section
         central_widget: QWidget = QWidget(self)
