@@ -27,7 +27,7 @@ The aim of the computer dashboard (computerDashboard.py) code is to:
 
 ## Hardware
 
-The C++ files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. However, for testing and development purposes the environement is currently configured to the ESP32 devkit board. The board will receive data from the peripherals described in Table 1.
+The C++ files will run on custom made PCBs operating on the ESP32-S3-WROOM-1(N8R8) microcontroller. The PCB was designed in [EasyEDA](https://easyeda.com/) and manufactured with the help of [JLCPCB](https://jlcpcb.com/). The board will receive data from the peripherals described in Table 1.
 
 |Name|Description|Through|Communication protocol|
 |----|----|----|----|
