@@ -54,9 +54,10 @@ namespace thrust_loadcell {
     
     bool readSensorData() {
         // Data not ready
-        if (digitalRead(ADS1232_DOUT_PIN))
+        if (digitalRead(ADS1232_DOUT_PIN)) {
             state::clearValidMaskBit(THRUST_LOADCELL_VALID_MASK_BIT);
             return false;
+        }
 
         std::int32_t raw = getRaw();
         s_engine_thrust = (raw - s_offset) * s_scale;
