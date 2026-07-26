@@ -137,6 +137,37 @@ class Dashboard(QMainWindow):
             partial(self.promptFloatCommand, CommandType.CALIBRATE_OXIDIZER_LOADCELL, "Calibrate Oxidizer Loadcell", "Enter the mass placed on the loadcell in kilograms")
         )
 
+        # pressure transducer config
+        config_menu.addSeparator()
+        set_fuel_pressure_scale_action: QAction = config_menu.addAction("Set fuel pressure scale")
+        set_fuel_pressure_scale_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.SET_FUEL_PRESSURE_SCALE, "Set Fuel Pressure Scale", "Enter the desired scale factor")
+        )
+        set_fuel_pressure_offset_action: QAction = config_menu.addAction("Set fuel pressure offset")
+        set_fuel_pressure_offset_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.SET_FUEL_PRESSURE_OFFSET, "Set Fuel Offset Scale", "Enter the desired offset")
+        )
+        set_oxidizer_pressure_scale_action: QAction = config_menu.addAction("Set oxidizer pressure scale")
+        set_oxidizer_pressure_scale_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.SET_OXIDIZER_PRESSURE_SCALE, "Set Oxidizer Pressure Scale", "Enter the desired scale factor")
+        )
+        set_oxidizer_pressure_offset_action: QAction = config_menu.addAction("Set oxidizer pressure offset")
+        set_oxidizer_pressure_offset_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.SET_OXIDIZER_PRESSURE_OFFSET, "Set Oxidizer Offset Scale", "Enter the desired offset")
+        )
+        tare_pressure_action: QAction = config_menu.addAction("Tare pressure")
+        tare_pressure_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.TARE_PRESSURE, "Tare Pressure", "Enter the known atmospheric pressure in Pascals.")
+        )
+        calibrate_fuel_pressure_action: QAction = config_menu.addAction("Calibrate fuel pressure")
+        calibrate_fuel_pressure_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.CALIBRATE_FUEL_PRESSURE, "Calibrate Fuel Pressure", "Enter the known pressure in Pascals")
+        )
+        calibrate_oxidizer_pressure_action: QAction = config_menu.addAction("Calibrate oxidizer pressure")
+        calibrate_oxidizer_pressure_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.CALIBRATE_OXIDIZER_PRESSURE, "Calibrate Oxidizer Pressure", "Enter the known pressure in Pascals")
+        )
+
 
     def _buildCentralWidget(self) -> None:
         central_widget = QWidget(self)

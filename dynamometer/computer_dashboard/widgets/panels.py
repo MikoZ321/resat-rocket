@@ -116,10 +116,10 @@ class TankInfoPanel(DashboardPanel):
     def __init__(self) -> None:
         super().__init__("Tank info")
 
-        self.fuel_pressure = LabelValuePair("Fuel pressure", "20", "bar")
+        self.fuel_pressure = LabelValuePair("Fuel pressure", "20", "Pa")
         # TODO: add tank graphic to track piston position
         tank_container = QWidget()
-        self.oxidizer_pressure = LabelValuePair("Oxidizer pressure", "20", "bar")
+        self.oxidizer_pressure = LabelValuePair("Oxidizer pressure", "20", "Pa")
 
         layout = QVBoxLayout()
         layout.addWidget(self.fuel_pressure)

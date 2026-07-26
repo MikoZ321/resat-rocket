@@ -5,6 +5,7 @@
 
 #include "core/state.h"
 #include "memory/spi_flash.h"
+#include "sensors/analog_sensors.h"
 #include "sensors/oxidizer_loadcell.h"
 #include "sensors/thrust_loadcell.h"
 #include "shared/communication_protocol.h"
@@ -33,6 +34,13 @@ static constexpr std::uint8_t PHASE_ALLOWED[] = {
     0b00000001, // SET_OXIDIZER_LOADCELL_OFFSET - CONFIG only
     0b00000001, // TARE_OXIDIZER_LOADCELL - CONFIG only
     0b00000001, // CALIBRATE_OXIDIZER_LOADCELL - CONFIG only
+    0b00000001, // SET_FUEL_PRESSURE_SCALE - CONFIG only
+    0b00000001, // SET_FUEL_PRESSURE_OFFSET - CONFIG only
+    0b00000001, // SET_OXIDIZER_PRESSURE_SCALE - CONFIG only
+    0b00000001, // SET_OXIDIZER_PRESSURE_OFFSET - CONFIG only
+    0b00000001, // TARE_PRESSURE - CONFIG only
+    0b00000001, // CALIBRATE_FUEL_PRESSURE - CONFIG only
+    0b00000001, // CALIBRATE_OXIDIZER_PRESSURE - CONFIG only
     0b00000001, // DUMP_FLASH - CONFIG only
 };
 
@@ -160,6 +168,41 @@ void command::executeOne() {
             Serial.println("[OC] Received CALIBRATE_OXIDIZER_LOADCELL command.");
             memcpy(&converted_payload, cmd.payload, 4);
             oxidizer_loadcell::calibrate(converted_payload);
+            break;
+        case CommandType::SET_FUEL_PRESSURE_SCALE:
+            Serial.println("[OC] Received SET_FUEL_PRESSURE_SCALE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::setFuelScale(converted_payload);
+            break;
+        case CommandType::SET_FUEL_PRESSURE_OFFSET:
+            Serial.println("[OC] Received SET_FUEL_PRESSURE_OFFSET command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::setFuelOffset(converted_payload);
+            break;
+        case CommandType::SET_OXIDIZER_PRESSURE_SCALE:
+            Serial.println("[OC] Received SET_OXIDIZER_PRESSURE_SCALE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::setOxidizerScale(converted_payload);
+            break;
+        case CommandType::SET_OXIDIZER_PRESSURE_OFFSET:
+            Serial.println("[OC] Received SET_OXIDIZER_PRESSURE_OFFSET command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::setOxidizerOffset(converted_payload);
+            break;
+        case CommandType::TARE_PRESSURE:
+            Serial.println("[OC] Received TARE_PRESSURE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::tarePressure(converted_payload);
+            break;
+        case CommandType::CALIBRATE_FUEL_PRESSURE:
+            Serial.println("[OC] Received CALIBRATE_FUEL_PRESSURE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::calibrateFuel(converted_payload);
+            break;
+        case CommandType::CALIBRATE_OXIDIZER_PRESSURE:
+            Serial.println("[OC] Received CALIBRATE_OXIDIZER_PRESSURE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            analog_sensors::calibrateOxidizer(converted_payload);
             break;
         case CommandType::DUMP_FLASH:
             Serial.println("[OC] Received DUMP_FLASH command.");
