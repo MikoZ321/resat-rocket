@@ -10,7 +10,11 @@ class CommandType(IntEnum):
     SET_THRUST_OFFSET = 3
     TARE_THRUST = 4
     CALIBRATE_THRUST = 5
-    DUMP_FLASH = 6
+    SET_OXIDIZER_LOADCELL_SCALE = 6
+    SET_OXIDIZER_LOADCELL_OFFSET = 7
+    TARE_OXIDIZER_LOADCELL = 8
+    CALIBRATE_OXIDIZER_LOADCELL = 9
+    DUMP_FLASH = 10
 
 
 # --- Outgoing command packet framing ---

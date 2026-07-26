@@ -10,7 +10,6 @@ namespace thrust_loadcell {
     void fill(float& engine_thrust); // Fills the provided reference with the latest thrust load cell data in Newtons
     void setScale(float scale); // Sets the scale factor for the thrust load cell
     void setOffset(float offset); // Sets the offset for the thrust load cell
-    std::int32_t getRaw(); // Returns a raw ADC conversion result
     void tare(int sample_count = 32); // Tares the loadcell averaging the provided number of samples to set the offset
     void calibrate(float known_mass, int sample_count = 32); // Calibrates the loadcell averaging the provided number of samples to set the correct scale based on the provided mass in kg
 }

@@ -120,6 +120,24 @@ class Dashboard(QMainWindow):
             partial(self.promptFloatCommand, CommandType.CALIBRATE_THRUST, "Calibrate Thrust", "Enter the mass placed on the loadcell in kilograms")
         )
 
+        # oxidizer loadcell config
+        config_menu.addSeparator()
+        set_oxidizer_loadcell_scale_action: QAction = config_menu.addAction("Set oxidizer loadcell scale")
+        set_oxidizer_loadcell_scale_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.SET_OXIDIZER_LOADCELL_SCALE, "Set Oxidizer Loadcell Scale", "Enter the desired scale factor")
+        )
+        set_oxidizer_loadcell_offset_action: QAction = config_menu.addAction("Set oxidizer loadcell offset")
+        set_oxidizer_loadcell_offset_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.SET_OXIDIZER_LOADCELL_OFFSET, "Set Oxidizer Loadcell Offset", "Enter the desired offset")
+        )
+        tare_oxidizer_loadcell_action: QAction = config_menu.addAction("Tare oxidizer loadcell")
+        tare_oxidizer_loadcell_action.triggered.connect(partial(self.handleCommand, CommandType.TARE_OXIDIZER_LOADCELL))
+        calibrate_oxidizer_loadcell_action: QAction = config_menu.addAction("Calibrate oxidizer loadcell")
+        calibrate_oxidizer_loadcell_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.CALIBRATE_OXIDIZER_LOADCELL, "Calibrate Oxidizer Loadcell", "Enter the mass placed on the loadcell in kilograms")
+        )
+
+
     def _buildCentralWidget(self) -> None:
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)

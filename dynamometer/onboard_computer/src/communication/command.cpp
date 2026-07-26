@@ -5,6 +5,7 @@
 
 #include "core/state.h"
 #include "memory/spi_flash.h"
+#include "sensors/oxidizer_loadcell.h"
 #include "sensors/thrust_loadcell.h"
 #include "shared/communication_protocol.h"
 #include "shared/crc.h"
@@ -28,6 +29,10 @@ static constexpr std::uint8_t PHASE_ALLOWED[] = {
     0b00000001, // SET_THRUST_OFFSET - CONFIG only
     0b00000001, // TARE_THRUST - CONFIG only
     0b00000001, // CALIBRATE_THRUST - CONFIG only
+    0b00000001, // SET_OXIDIZER_LOADCELL_SCALE - CONFIG only
+    0b00000001, // SET_OXIDIZER_LOADCELL_OFFSET - CONFIG only
+    0b00000001, // TARE_OXIDIZER_LOADCELL - CONFIG only
+    0b00000001, // CALIBRATE_OXIDIZER_LOADCELL - CONFIG only
     0b00000001, // DUMP_FLASH - CONFIG only
 };
 
@@ -121,13 +126,11 @@ void command::executeOne() {
         case CommandType::SET_THRUST_SCALE:
             Serial.println("[OC] Received SET_THRUST_SCALE command.");
             memcpy(&converted_payload, cmd.payload, 4);
-            Serial.println(converted_payload);
             thrust_loadcell::setScale(converted_payload);
             break;
         case CommandType::SET_THRUST_OFFSET:
             Serial.println("[OC] Received SET_THRUST_OFFSET command.");
             memcpy(&converted_payload, cmd.payload, 4);
-            Serial.println(converted_payload);
             thrust_loadcell::setOffset(converted_payload);
             break;
         case CommandType::TARE_THRUST:
@@ -138,6 +141,25 @@ void command::executeOne() {
             Serial.println("[OC] Received CALIBRATE_THRUST command.");
             memcpy(&converted_payload, cmd.payload, 4);
             thrust_loadcell::calibrate(converted_payload);
+            break;
+        case CommandType::SET_OXIDIZER_LOADCELL_SCALE:
+            Serial.println("[OC] Received SET_OXIDIZER_LOADCELL_SCALE command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            oxidizer_loadcell::setScale(converted_payload);
+            break;
+        case CommandType::SET_OXIDIZER_LOADCELL_OFFSET:
+            Serial.println("[OC] Received SET_OXIDIZER_LOADCELL_OFFSET command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            oxidizer_loadcell::setOffset(converted_payload);
+            break;
+        case CommandType::TARE_OXIDIZER_LOADCELL:
+            Serial.println("[OC] Received TARE_OXIDIZER_LOADCELL command.");
+            oxidizer_loadcell::tare();
+            break;
+        case CommandType::CALIBRATE_OXIDIZER_LOADCELL:
+            Serial.println("[OC] Received CALIBRATE_OXIDIZER_LOADCELL command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            oxidizer_loadcell::calibrate(converted_payload);
             break;
         case CommandType::DUMP_FLASH:
             Serial.println("[OC] Received DUMP_FLASH command.");
