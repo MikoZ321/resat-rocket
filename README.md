@@ -56,8 +56,8 @@ The MCU will also output data to the peripherals described in Table 2.
 
 |Name|Description|Through|Communication protocol|
 |----|----|----|----|
-|MG966R fuel valve servo|Opens and closes the fuel valve|-|PWM|
-|MG966R oxidizer valve servo|Opens and closes the oxidizer valve|-|PWM|
+|MG996R fuel valve servo|Opens and closes the fuel valve|-|PWM|
+|MG996R oxidizer valve servo|Opens and closes the oxidizer valve|-|PWM|
 |SD-card interface|Allows for storing long-term data|-|SPI|
 |W25Q64JWSSIQ flash memory|Allows for storing current data and buffering SD-card input|-|SPI|
 |RFD868 radio interface|Enables two-way communication with the ground station|-|UART|

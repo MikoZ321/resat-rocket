@@ -15,6 +15,7 @@
 #include "outputs/camera.h"
 #include "outputs/leds.h"
 #include "outputs/multiplexer.h"
+#include "outputs/servos.h"
 #include "sensors/analog_sensors.h"
 #include "sensors/atmospheric_sensor.h"
 #include "sensors/high_g_accelerometer.h"
@@ -64,6 +65,7 @@ namespace scheduler {
         camera::begin();
         buzzer::begin();
         multiplexer::begin();
+        servos::begin();
 
         // Initialize command processing
         command::begin();
