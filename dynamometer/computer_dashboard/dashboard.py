@@ -36,14 +36,22 @@ from serial_worker import SerialWorker
 from widgets.panels import (
     CommunicationsInfoPanel,
     EngineInfoPanel,
+    EnvironmentalPanel,
+    FlightStatusPanel,
+    GpsPanel,
     HydraulicsInfoPanel,
-    TankInfoPanel,
+    ImuPanel,
+    PowerPanel,
+    PropulsionPanel,
     ThrustInfoPanel,
     ThrustPlotPanel,
 )
 
 # Matches a float with an optional C++-style suffix (f/F/l/L), e.g. 12.5, -3.2e3, 1.0f
 CPP_FLOAT_PATTERN = re.compile(r"^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?[fFlL]?$")
+
+GRID_COLUMNS = 10
+GRID_ROWS = 5 
 
 
 class Dashboard(QMainWindow):
@@ -172,40 +180,39 @@ class Dashboard(QMainWindow):
     def _buildCentralWidget(self) -> None:
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-
-        thrust_plot = ThrustPlotPanel()
-        self.thrust_curve = thrust_plot.thrust_curve
-
-        thrust_info = ThrustInfoPanel()
-        self.current_thrust_widget = thrust_info.current_thrust
-        self.max_thrust_widget = thrust_info.max_thrust
-        self.total_impulse_widget = thrust_info.total_impulse
-
-        engine_info = EngineInfoPanel()
-        self.brightness_widget = engine_info.brightness
-
-        communications_info = CommunicationsInfoPanel()
-        self.rssi_widget = communications_info.rssi
-        self.data_frequency_widget = communications_info.data_frequency
-        self.elapsed_time_widget = communications_info.elapsed_time
-
-        hydraulics_info = HydraulicsInfoPanel()
-
-        tank_info = TankInfoPanel()
-        self.fuel_pressure_widget = tank_info.fuel_pressure
-        self.oxidizer_pressure_widget = tank_info.oxidizer_pressure
-
+ 
+        # thrust plot lives in its own full-width row; everything else is
+        # a subsystem panel laid out in a uniform grid below it
+        self.thrust_plot_panel = ThrustPlotPanel()
+        self.thrust_curve = self.thrust_plot_panel.thrust_curve
+ 
+        self.thrust_info_panel = ThrustInfoPanel()
+        self.imu_panel = ImuPanel()
+        self.environmental_panel = EnvironmentalPanel()
+        self.propulsion_panel = PropulsionPanel()
+        self.engine_info_panel = EngineInfoPanel()
+        self.power_panel = PowerPanel()
+        self.gps_panel = GpsPanel()
+        self.flight_status_panel = FlightStatusPanel()
+        self.communications_panel = CommunicationsInfoPanel()
+        self.hydraulics_panel = HydraulicsInfoPanel()
+  
         main_grid_layout = QGridLayout()
-        main_grid_layout.addWidget(thrust_plot, 0, 0, 1, 4)
-        main_grid_layout.addWidget(thrust_info, 0, 4, 1, 2)
-        main_grid_layout.addWidget(engine_info, 0, 6, 2, 3)
-        main_grid_layout.addWidget(communications_info, 1, 0, 1, 2)
-        main_grid_layout.addWidget(hydraulics_info, 1, 2, 1, 2)
-        main_grid_layout.addWidget(tank_info, 1, 4, 1, 2)
-
+        main_grid_layout.addWidget(self.thrust_plot_panel, 0, 0, 3, 6)
+        main_grid_layout.addWidget(self.thrust_info_panel, 0, 6, 3, 1)
+        main_grid_layout.addWidget(self.propulsion_panel, 0, 7, 3, 1)
+        main_grid_layout.addWidget(self.gps_panel, 0, 8, 3, 1)
+        main_grid_layout.addWidget(self.communications_panel, 0, 9, 3, 1)
+        main_grid_layout.addWidget(self.imu_panel, 3, 0, 2, 2)
+        main_grid_layout.addWidget(self.environmental_panel, 3, 2, 2, 1)
+        main_grid_layout.addWidget(self.engine_info_panel, 3, 3, 2, 2)
+        main_grid_layout.addWidget(self.power_panel, 3, 5, 2, 1)
+        main_grid_layout.addWidget(self.hydraulics_panel, 3, 6, 2, 2)
+        main_grid_layout.addWidget(self.flight_status_panel, 3, 8, 2, 2)
+  
         main_grid_layout.setSpacing(8)
         main_grid_layout.setContentsMargins(8, 8, 8, 8)
-
+ 
         central_widget.setLayout(main_grid_layout)
 
     # --- Commands ----------------------------------------------------------
@@ -278,19 +285,60 @@ class Dashboard(QMainWindow):
 
             # TODO: protect against corrupted or incomplete packets
             self.parsed_data = parse_packet(line, self.parsed_data)
+            self._refreshWidgets(self.parsed_data)
 
-            self.thrust_buffer.append(self.parsed_data.current_thrust)
-            self.time_buffer.append(self.parsed_data.elapsed_time)
+    def _refreshWidgets(self, data: DataContainer) -> None:
+        """Pushes every field of `data` into its corresponding dashboard widget."""
+        self.thrust_buffer.append(data.current_thrust)
+        self.time_buffer.append(data.elapsed_time)
 
-            self.current_thrust_widget.setValue(f"{self.parsed_data.current_thrust:.2f}")
-            self.max_thrust_widget.setValue(f"{self.parsed_data.max_thrust:.2f}")
-            self.total_impulse_widget.setValue(f"{self.parsed_data.total_impulse:.2f}")
+        # thrust info
+        self.thrust_info_panel.current_thrust.setValue(f"{data.current_thrust:.2f}")
+        self.thrust_info_panel.max_thrust.setValue(f"{data.max_thrust:.2f}")
+        self.thrust_info_panel.total_impulse.setValue(f"{data.total_impulse:.2f}")
 
-            self.data_frequency_widget.setValue(f"{self.parsed_data.data_frequency:.2f}")
-            self.elapsed_time_widget.setValue(f"{self.parsed_data.elapsed_time:.2f}")
+        # IMU
+        self.imu_panel.acceleration_main.setValue(data.acceleration_main)
+        self.imu_panel.angular_velocity.setValue(data.angular_velocity)
+        self.imu_panel.acceleration_high_g.setValue(data.acceleration_high_g)
 
-            self.oxidizer_pressure_widget.setValue(f"{self.parsed_data.oxidizer_pressure:.2f}")
-            self.fuel_pressure_widget.setValue(f"{self.parsed_data.fuel_pressure:.2f}")
+        # environmental
+        self.environmental_panel.air_pressure.setValue(f"{data.air_pressure:.2f}")
+        self.environmental_panel.air_temperature.setValue(f"{data.air_temperature:.2f}")
+        self.environmental_panel.altitude_fusion.setValue(f"{data.altitude_fusion:.2f}")
+
+        # propulsion
+        self.propulsion_panel.fuel_pressure.setValue(f"{data.fuel_pressure:.2f}")
+        self.propulsion_panel.oxidizer_pressure.setValue(f"{data.oxidizer_pressure:.2f}")
+        self.propulsion_panel.oxidizer_weight.setValue(f"{data.oxidizer_weight:.2f}")
+        self.propulsion_panel.piston_position.setValue(f"{data.piston_position:.2f}")
+
+        # engine
+        self.engine_info_panel.engine_temperature_top.setValue(f"{data.engine_temperature_top:.2f}")
+        self.engine_info_panel.engine_temperature_bottom.setValue(f"{data.engine_temperature_bottom:.2f}")
+
+        # power
+        self.power_panel.pyro_battery_voltage.setValue(f"{data.pyro_battery_voltage:.2f}")
+        self.power_panel.main_battery_voltage.setValue(f"{data.main_battery_voltage:.2f}")
+        self.power_panel.main_battery_level.setValue(f"{data.main_battery_level:.2f}")
+
+        # GPS
+        self.gps_panel.latitude.setValue(f"{data.latitude:.6f}")
+        self.gps_panel.longitude.setValue(f"{data.longitude:.6f}")
+        self.gps_panel.altitude_gps.setValue(f"{data.altitude_gps:.2f}")
+        self.gps_panel.sattelite_count.setValue(str(data.sattelite_count))
+
+        # flight status
+        self.flight_status_panel.telemetry_frame_index.setValue(str(data.telemetry_frame_index))
+        self.flight_status_panel.current_flight_phase.setValue(str(data.current_flight_phase))
+        self.flight_status_panel.current_arm_state.setValue(str(data.current_arm_state))
+
+        # communications / link health
+        self.communications_panel.data_frequency.setValue(f"{data.data_frequency:.2f}")
+        self.communications_panel.elapsed_time.setValue(f"{data.elapsed_time:.2f}")
+        self.communications_panel.received_frame_count.setValue(str(data.received_frame_count))
+        self.communications_panel.invalid_frame_count.setValue(str(data.invalid_frame_count))
+        self.communications_panel.missing_frame_count.setValue(str(data.missing_frame_count))
 
     def updateThrustPlot(self) -> None:
         if not self.time_buffer:
@@ -354,5 +402,4 @@ class Dashboard(QMainWindow):
 
     def quit(self) -> None:
         """Closes the window and kills the application."""
-        self._stopSerialWorker()
         self.app.quit()
