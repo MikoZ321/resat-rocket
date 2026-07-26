@@ -21,7 +21,11 @@ class CommandType(IntEnum):
     TARE_PRESSURE = 14
     CALIBRATE_FUEL_PRESSURE = 15
     CALIBRATE_OXIDIZER_PRESSURE = 16
-    DUMP_FLASH = 17
+    ARM = 17
+    DISARM = 18
+    BEGIN_FUELING = 19
+    ABORT_FUELING = 20
+    DUMP_FLASH = 21
 
 
 # --- Outgoing command packet framing ---

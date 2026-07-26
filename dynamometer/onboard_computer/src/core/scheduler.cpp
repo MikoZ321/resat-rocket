@@ -7,6 +7,7 @@
 #include "communication/command.h"
 #include "communication/radio.h"
 #include "config.h"
+#include "core/fueling.h"
 #include "core/state.h"
 #include "core/telemetry.h"
 #include "memory/sd_card.h"
@@ -88,6 +89,8 @@ namespace scheduler {
             analog_sensors::readSensorData();
             thermocouples::readSensorData();
             // TODO: gauge piston position
+
+            fueling::update();
         }
         
         // Poll Tier C sensors

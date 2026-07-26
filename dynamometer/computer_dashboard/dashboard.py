@@ -102,6 +102,21 @@ class Dashboard(QMainWindow):
         self.select_port_menu.aboutToShow.connect(self.listPorts)
 
         command_menu: QMenu = menu_bar.addMenu("Commands")
+
+        arm_action: QAction = command_menu.addAction("Arm")
+        arm_action.triggered.connect(partial(self.handleCommand, CommandType.ARM))
+        disarm_action: QAction = command_menu.addAction("Disarm")
+        disarm_action.triggered.connect(partial(self.handleCommand, CommandType.DISARM))
+
+        command_menu.addSeparator()
+        begin_fueling_action: QAction = command_menu.addAction("Begin fueling")
+        begin_fueling_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.BEGIN_FUELING, "Set Fueling Target", "Enter the desired mass of the oxidizer")
+        )
+        abort_fueling_action: QAction = command_menu.addAction("Abort fueling")
+        abort_fueling_action.triggered.connect(partial(self.handleCommand, CommandType.ABORT_FUELING))
+
+        command_menu.addSeparator()
         dump_flash_action: QAction = command_menu.addAction("Dump flash")
         dump_flash_action.triggered.connect(partial(self.handleCommand, CommandType.DUMP_FLASH))
 

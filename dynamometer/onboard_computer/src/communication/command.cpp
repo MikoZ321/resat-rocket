@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
+#include "core/fueling.h"
 #include "core/state.h"
 #include "memory/spi_flash.h"
 #include "sensors/analog_sensors.h"
@@ -41,6 +42,10 @@ static constexpr std::uint8_t PHASE_ALLOWED[] = {
     0b00000001, // TARE_PRESSURE - CONFIG only
     0b00000001, // CALIBRATE_FUEL_PRESSURE - CONFIG only
     0b00000001, // CALIBRATE_OXIDIZER_PRESSURE - CONFIG only
+    0b00000100, // ARM - PRELAUNCH only
+    0b11111111, // DISARM - all phases
+    0b00000100, // BEGIN_FUELING - PRELAUNCH only
+    0b00000010, // ABORT_FUELING - FUELING only
     0b00000001, // DUMP_FLASH - CONFIG only
 };
 
@@ -204,6 +209,30 @@ void command::executeOne() {
             memcpy(&converted_payload, cmd.payload, 4);
             analog_sensors::calibrateOxidizer(converted_payload);
             break;
+        case CommandType::ARM:
+            Serial.println("[OC] Received ARM command.");
+            state::setArmState(ArmState::ARMED);
+            break;
+        case CommandType::DISARM:
+            Serial.println("[OC] Received DISARM command.");
+            state::setArmState(ArmState::IDLE);
+            break;
+        case CommandType::BEGIN_FUELING:
+            Serial.println("[OC] Received BEGIN_FUELING command.");
+
+            if (state::getArmState() != ArmState::ARMED) {
+                Serial.println("[OC] Arming required prior to BEGIN_FUELING command.");
+                state::setCommandResult(CommandResult::NOT_ARMED);
+                break;
+            }
+
+            memcpy(&converted_payload, cmd.payload, 4);
+            fueling::begin(converted_payload);
+            break;
+        case CommandType::ABORT_FUELING:
+            Serial.println("[OC] Received ABORT_FUELING command.");
+            fueling::abort();
+            break;
         case CommandType::DUMP_FLASH:
             Serial.println("[OC] Received DUMP_FLASH command.");
             spi_flash::dumpToSerial();
@@ -211,5 +240,7 @@ void command::executeOne() {
         default:
             break;
     }
+
+    if (cmd.type != CommandType::ARM) state::setArmState(ArmState::IDLE);
     state::setCommandResult(CommandResult::OK);
 }

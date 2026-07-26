@@ -12,6 +12,7 @@ namespace state {
     CommandResult getCommandResult(); // Returns the most recent command result
     FlightPhase getFlightPhase(); // Returns the current flight phase
     void persistFlightPhase(); // Persists the current flight phase to RTC memory, so it can be recovered after deep sleep
+    void setArmState(ArmState new_arm_state); // Sets the arm state to the specified argument
     void setCommandResult(CommandResult new_command_result);
     void setFlightPhase(FlightPhase new_flight_phase); // Switches the current flight phase to the new argument, which must be within the FlightPhase enum range
     void setValidMaskBit(int bit_position); // Sets the specified bit as valid in the mask

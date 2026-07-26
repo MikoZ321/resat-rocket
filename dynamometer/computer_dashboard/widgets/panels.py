@@ -102,7 +102,7 @@ class PropulsionPanel(DashboardPanel):
 
         self.fuel_pressure = LabelValuePair("Fuel pressure", "0.00", "bar")
         self.oxidizer_pressure = LabelValuePair("Oxidizer pressure", "0.00", "bar")
-        self.oxidizer_weight = LabelValuePair("Oxidizer weight", "0.00", "kg")
+        self.oxidizer_weight = LabelValuePair("Oxidizer weight", "0.00", "N")
         self.piston_position = LabelValuePair("Piston position", "0.00", "mm")
 
         layout = QVBoxLayout()

@@ -45,6 +45,10 @@ enum class CommandType : std::uint8_t {
    TARE_PRESSURE,
    CALIBRATE_FUEL_PRESSURE,
    CALIBRATE_OXIDIZER_PRESSURE,
+   ARM,
+   DISARM,
+   BEGIN_FUELING,
+   ABORT_FUELING,
    DUMP_FLASH,
 };
 
