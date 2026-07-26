@@ -137,7 +137,4 @@ For dummySerialCode.ino and groundStationDynamometer.ino:
 For `dynamometer/onboard_computer`:
 * Created in the PlatformIO IDE extension for VS Code
 
-For computerDashboard.py:
-* PySide6
-* pyqtgraph
-* pySerial
+For `dynamometer/computer_dashboard` see `requirements.txt`.
