@@ -94,20 +94,25 @@ class Dashboard(QMainWindow):
         self.select_port_menu.aboutToShow.connect(self.listPorts)
 
         command_menu: QMenu = menu_bar.addMenu("Commands")
-        arm_action: QAction = command_menu.addAction("Arm")
-        arm_action.triggered.connect(partial(self.handleCommand, CommandType.ARM))
-        disarm_action: QAction = command_menu.addAction("Disarm")
-        disarm_action.triggered.connect(partial(self.handleCommand, CommandType.DISARM))
-        set_thrust_scale_action: QAction = command_menu.addAction("Set thrust scale")
+        dump_flash_action: QAction = command_menu.addAction("Dump flash")
+        dump_flash_action.triggered.connect(partial(self.handleCommand, CommandType.DUMP_FLASH))
+
+        config_menu: QMenu = menu_bar.addMenu("Config")
+        enter_config_action: QAction = config_menu.addAction("Begin config")
+        enter_config_action.triggered.connect(partial(self.handleCommand, CommandType.ENTER_CONFIG))
+        exit_config_action: QAction = config_menu.addAction("Finish config")
+        exit_config_action.triggered.connect(partial(self.handleCommand, CommandType.EXIT_CONFIG))
+
+        # thrust loadcell config
+        config_menu.addSeparator()
+        set_thrust_scale_action: QAction = config_menu.addAction("Set thrust scale")
         set_thrust_scale_action.triggered.connect(
             partial(self.promptFloatCommand, CommandType.SET_THRUST_SCALE, "Set Thrust Scale")
         )
-        set_thrust_offset_action: QAction = command_menu.addAction("Set thrust offset")
+        set_thrust_offset_action: QAction = config_menu.addAction("Set thrust offset")
         set_thrust_offset_action.triggered.connect(
             partial(self.promptFloatCommand, CommandType.SET_THRUST_OFFSET, "Set Thrust Offset")
         )
-        dump_flash_action: QAction = command_menu.addAction("Dump flash")
-        dump_flash_action.triggered.connect(partial(self.handleCommand, CommandType.DUMP_FLASH))
 
     def _buildCentralWidget(self) -> None:
         central_widget = QWidget(self)

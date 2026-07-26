@@ -4,8 +4,8 @@ from enum import IntEnum
 
 
 class CommandType(IntEnum):
-    ARM = 0
-    DISARM = 1
+    ENTER_CONFIG = 0
+    EXIT_CONFIG = 1
     SET_THRUST_SCALE = 2
     SET_THRUST_OFFSET = 3
     DUMP_FLASH = 4

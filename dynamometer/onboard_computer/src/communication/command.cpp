@@ -21,9 +21,9 @@ std::uint16_t command::getCommandFrameIndex() {
 // Bitmask of FlightPhase values in which each command type is permitted.
 // Bit N set = allowed in phase N.
 static constexpr std::uint8_t PHASE_ALLOWED[] = {
-    // indexed by CommandType byte — sparse, only defined types matter
-    0b00000010, // ARM       — PRE_LAUNCH only
-    0xFF,       // DISARM    — any phase
+    // indexed by CommandType byte - sparse, only defined types matter
+    0b00000100, // ENTER_CONFIG - PRELAUNCH only
+    0b00000001, // EXIT_CONFIG - CONFIG only
     0b00000001, // SET_THRUST_SCALE - CONFIG only
     0b00000001, // SET_THRUST_OFFSET - CONFIG only
     0b00000001, // DUMP_FLASH - CONFIG only
@@ -108,13 +108,13 @@ void command::executeOne() {
 
     // Dispatch
     switch (float converted_payload; (CommandType)cmd.type) {
-        case CommandType::ARM:
-            //State::transitionArm(ArmState::ARMED);
-            Serial.println("[OC] Received ARM command.");
+        case CommandType::ENTER_CONFIG:
+            Serial.println("[OC] Received ENTER_CONFIG command.");
+            state::setFlightPhase(FlightPhase::CONFIG);
             break;
-        case CommandType::DISARM:
-            //State::resetArm();
-            Serial.println("[OC] Received DISARM command.");
+        case CommandType::EXIT_CONFIG:
+            Serial.println("[OC] Received EXIT_CONFIG command.");
+            state::setFlightPhase(FlightPhase::PRELAUNCH);
             break;
         case CommandType::SET_THRUST_SCALE:
             Serial.println("[OC] Received SET_THRUST_SCALE command.");

@@ -6,6 +6,7 @@
 
 enum class FlightPhase : std::uint8_t {
    CONFIG,
+   FUELING,
    PRELAUNCH,
    ARMED,
    LAUNCHED,
@@ -27,8 +28,8 @@ enum class CommandResult : std::uint8_t {
 };
 
 enum class CommandType : std::uint8_t {
-   ARM,
-   DISARM,
+   ENTER_CONFIG,
+   EXIT_CONFIG,
    SET_THRUST_SCALE,
    SET_THRUST_OFFSET,
    DUMP_FLASH,
