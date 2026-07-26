@@ -96,6 +96,8 @@ class Dashboard(QMainWindow):
         file_menu.addAction("Save as ...")
         quit_action: QAction = file_menu.addAction("Quit")
         quit_action.triggered.connect(self.quit)
+        clear_thrust_plot_action: QAction = file_menu.addAction("Clear thrust plot")
+        clear_thrust_plot_action.triggered.connect(self.clearThrustPlot)
 
         settings_menu: QMenu = menu_bar.addMenu("Settings")
         self.select_port_menu: QMenu = settings_menu.addMenu("Select port")
@@ -414,6 +416,11 @@ class Dashboard(QMainWindow):
         self.plot_timer.stop()
 
     # --- Misc ----------------------------------------------------------
+
+    def clearThrustPlot(self) -> None:
+        """Clears the thrust and time buffers of the thrust plot"""    
+        self.time_buffer.clear()
+        self.thrust_buffer.clear()
 
     def quit(self) -> None:
         """Closes the window and kills the application."""
