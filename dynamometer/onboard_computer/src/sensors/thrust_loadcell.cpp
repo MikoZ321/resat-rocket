@@ -9,6 +9,8 @@ static float s_engine_thrust;
 static float s_thrust_scale;
 static float s_thrust_offset;
 
+static constexpr float FREEFALL_ACCELERATION = 9.81f;
+
 namespace thrust_loadcell {
     // TODO: check setup and return value
     bool begin() {
@@ -22,12 +24,31 @@ namespace thrust_loadcell {
 
         return true;
     }
-    // TODO: Check if blocking is not a problem
+    
     bool readSensorData() {
         // Data not ready
         if (digitalRead(ADS1232_DOUT_PIN))
             return false;
 
+        std::int32_t raw = getRaw();
+        s_engine_thrust = (raw - s_thrust_offset) * s_thrust_scale;
+
+        return true;
+    }
+
+    void fill(float& engine_thrust) {
+        engine_thrust = s_engine_thrust;
+    }
+
+    void setScale(float scale) {
+        s_thrust_scale = scale;
+    }
+
+    void setOffset(float offset) {
+        s_thrust_offset = offset;
+    }
+
+    std::int32_t getRaw() {
         std::uint32_t value = 0;
 
         noInterrupts();
@@ -51,25 +72,35 @@ namespace thrust_loadcell {
         interrupts();
         // Sign extend
         std::int32_t raw;
-        if (value & 0x800000)
-            raw = (std::int32_t)(value | 0xFF000000);
-        else
-            raw = (std::int32_t)value;
+        if (value & 0x800000) raw = (std::int32_t)(value | 0xFF000000);
+        else raw = (std::int32_t)value;
 
-        s_engine_thrust = raw * s_thrust_scale + s_thrust_offset;
-
-        return true;
+        return raw;
     }
 
-    void fill(float& engine_thrust) {
-        engine_thrust = s_engine_thrust;
+    void tare(int sample_count) {
+        float sum = 0.0f;
+        for (int i = 0; i < sample_count; i++) {
+            sum += getRaw();
+            delay(5);
+        }
+        float avg = sum / sample_count;
+        setOffset(avg);
     }
 
-    void setScale(float scale) {
-        s_thrust_scale = scale;
-    }
-
-    void setOffset(float offset) {
-        s_thrust_offset = offset;
+    void calibrate(float known_mass, int sample_count) {
+        float sum = 0.0f;
+        for (int i = 0; i < sample_count; i++) {
+            sum += getRaw();
+            delay(5);
+        }
+        float avg = sum / sample_count;
+        float delta = avg - s_thrust_offset;
+        if (delta == 0.0f) {
+            // Avoid divide-by-zero; caller should have tared first with real weight applied
+            return;
+        }
+        float scale = (known_mass * FREEFALL_ACCELERATION) / delta;
+        setScale(scale);
     }
 }

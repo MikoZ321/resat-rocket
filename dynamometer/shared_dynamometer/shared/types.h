@@ -32,6 +32,8 @@ enum class CommandType : std::uint8_t {
    EXIT_CONFIG,
    SET_THRUST_SCALE,
    SET_THRUST_OFFSET,
+   TARE_THRUST,
+   CALIBRATE_THRUST,
    DUMP_FLASH,
 };
 

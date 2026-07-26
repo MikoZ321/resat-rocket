@@ -26,6 +26,8 @@ static constexpr std::uint8_t PHASE_ALLOWED[] = {
     0b00000001, // EXIT_CONFIG - CONFIG only
     0b00000001, // SET_THRUST_SCALE - CONFIG only
     0b00000001, // SET_THRUST_OFFSET - CONFIG only
+    0b00000001, // TARE_THRUST - CONFIG only
+    0b00000001, // CALIBRATE_THRUST - CONFIG only
     0b00000001, // DUMP_FLASH - CONFIG only
 };
 
@@ -127,6 +129,15 @@ void command::executeOne() {
             memcpy(&converted_payload, cmd.payload, 4);
             Serial.println(converted_payload);
             thrust_loadcell::setOffset(converted_payload);
+            break;
+        case CommandType::TARE_THRUST:
+            Serial.println("[OC] Received TARE_THRUST command.");
+            thrust_loadcell::tare();
+            break;
+        case CommandType::CALIBRATE_THRUST:
+            Serial.println("[OC] Received CALIBRATE_THRUST command.");
+            memcpy(&converted_payload, cmd.payload, 4);
+            thrust_loadcell::calibrate(converted_payload);
             break;
         case CommandType::DUMP_FLASH:
             Serial.println("[OC] Received DUMP_FLASH command.");

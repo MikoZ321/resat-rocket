@@ -8,7 +8,9 @@ class CommandType(IntEnum):
     EXIT_CONFIG = 1
     SET_THRUST_SCALE = 2
     SET_THRUST_OFFSET = 3
-    DUMP_FLASH = 4
+    TARE_THRUST = 4
+    CALIBRATE_THRUST = 5
+    DUMP_FLASH = 6
 
 
 # --- Outgoing command packet framing ---

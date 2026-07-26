@@ -107,11 +107,17 @@ class Dashboard(QMainWindow):
         config_menu.addSeparator()
         set_thrust_scale_action: QAction = config_menu.addAction("Set thrust scale")
         set_thrust_scale_action.triggered.connect(
-            partial(self.promptFloatCommand, CommandType.SET_THRUST_SCALE, "Set Thrust Scale")
+            partial(self.promptFloatCommand, CommandType.SET_THRUST_SCALE, "Set Thrust Scale", "Enter the desired scale factor")
         )
         set_thrust_offset_action: QAction = config_menu.addAction("Set thrust offset")
         set_thrust_offset_action.triggered.connect(
-            partial(self.promptFloatCommand, CommandType.SET_THRUST_OFFSET, "Set Thrust Offset")
+            partial(self.promptFloatCommand, CommandType.SET_THRUST_OFFSET, "Set Thrust Offset", "Enter the desired offset")
+        )
+        tare_thrust_action: QAction = config_menu.addAction("Tare thrust")
+        tare_thrust_action.triggered.connect(partial(self.handleCommand, CommandType.TARE_THRUST))
+        calibrate_thrust_action: QAction = config_menu.addAction("Calibrate thrust")
+        calibrate_thrust_action.triggered.connect(
+            partial(self.promptFloatCommand, CommandType.CALIBRATE_THRUST, "Calibrate Thrust", "Enter the mass placed on the loadcell in kilograms")
         )
 
     def _buildCentralWidget(self) -> None:
@@ -167,14 +173,14 @@ class Dashboard(QMainWindow):
         )
         self.send_serial_command.emit(packet)
 
-    def promptFloatCommand(self, command: CommandType, dialog_title: str) -> None:
+    def promptFloatCommand(self, command: CommandType, dialog_title: str, dialog_text: str = "Enter payload as a float (e.g. 12.5, -3.2e3, 1.0f):") -> None:
         """Prompts the user for a float payload and sends it with the given command.
 
         Replaces the previous promptThrustScale/promptThrustOffset, which were
         near-identical copies differing only in which CommandType they sent.
         """
         text, ok = QInputDialog.getText(
-            self, dialog_title, "Enter payload as a float (e.g. 12.5, -3.2e3, 1.0f):"
+            self, dialog_title, dialog_text
         )
 
         if not ok:
